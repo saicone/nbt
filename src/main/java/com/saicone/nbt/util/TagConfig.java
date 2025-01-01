@@ -1,5 +1,8 @@
-package com.saicone.nbt;
+package com.saicone.nbt.util;
 
+import com.saicone.nbt.Tag;
+import com.saicone.nbt.TagMapper;
+import com.saicone.nbt.TagType;
 import com.saicone.nbt.io.TagWriter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

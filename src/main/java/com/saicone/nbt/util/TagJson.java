@@ -1,10 +1,13 @@
-package com.saicone.nbt;
+package com.saicone.nbt.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.saicone.nbt.Tag;
+import com.saicone.nbt.TagMapper;
+import com.saicone.nbt.TagType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
