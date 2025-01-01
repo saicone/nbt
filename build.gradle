@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'java-library'
+    id 'maven-publish'
+    id 'me.champeau.jmh' version '0.7.2'
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'com.google.code.gson:gson:2.11.0'
+    compileOnly 'org.jetbrains:annotations:26.0.1'
+
+    testImplementation(platform('org.junit:junit-bom:5.11.4'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+    testImplementation('com.google.code.gson:gson:2.11.0')
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+jmh {
+    warmupIterations = 5
+    iterations = 10
+    fork = 1
+    timeUnit = 'ms'
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+    withSourcesJar()
+    withJavadocJar()
+}
+
+javadoc {
+    options {
+        links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
+        links 'https://javadoc.io/doc/org.jetbrains/annotations/latest/'
+        links 'https://javadoc.io/doc/com.google.code.gson/gson/latest/'
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+        }
+    }
+}
