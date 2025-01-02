@@ -3,13 +3,13 @@ package com.saicone.nbt.io;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 
 public class ReverseDataOutputStream extends FilterOutputStream implements DataOutput {
 
@@ -47,13 +47,13 @@ public class ReverseDataOutputStream extends FilterOutputStream implements DataO
 
     @Override
     public void writeShort(int v) throws IOException {
-        SHORT.set(shortBuffer, 0, v);
+        SHORT.set(shortBuffer, 0, (short) v);
         out.write(shortBuffer, 0, Short.BYTES);
     }
 
     @Override
     public void writeChar(int v) throws IOException {
-        SHORT.set(shortBuffer, 0, v);
+        SHORT.set(shortBuffer, 0, (short) v);
         out.write(shortBuffer, 0, Short.BYTES);
     }
 
@@ -99,11 +99,10 @@ public class ReverseDataOutputStream extends FilterOutputStream implements DataO
 
     @Override
     public void writeUTF(@NotNull String s) throws IOException {
-        if (out instanceof DataOutputStream) {
-            ((DataOutputStream) out).writeUTF(s);
-        } else {
-            new DataOutputStream(out).writeUTF(s);
-        }
+        // We can't use DataOutputStream.writeUTF(String, DataOutput) due it doesn't call DataOutput#writeShort(int)
+        final byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+        writeShort(bytes.length);
+        this.write(bytes);
     }
 
     @Override

@@ -96,33 +96,13 @@ public class TagIoTest {
         byte[] bytes;
         Map<String, Object> map;
 
-        // Unnamed
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream(); TagOutput<Object> output = TagOutput.of(new NetworkDataOutputStream(out))) {
-            output.writeUnnamed(TagObjects.MAP);
-            bytes = out.toByteArray();
-        }
-        try (ByteArrayInputStream in = new ByteArrayInputStream(bytes); TagInput<Object> input = TagInput.of(new NetworkDataInputStream(in))) {
-            map = input.readUnnamed();
-        }
-        assertTagEquals(TagObjects.MAP, map);
-
-        // Any
+        // Cannot be used to read unnamed and bedrock files
         try (ByteArrayOutputStream out = new ByteArrayOutputStream(); TagOutput<Object> output = TagOutput.of(new NetworkDataOutputStream(out))) {
             output.writeAny(TagObjects.MAP);
             bytes = out.toByteArray();
         }
         try (ByteArrayInputStream in = new ByteArrayInputStream(bytes); TagInput<Object> input = TagInput.of(new NetworkDataInputStream(in))) {
             map = input.readAny();
-        }
-        assertTagEquals(TagObjects.MAP, map);
-
-        // Bedrock File
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream(); TagOutput<Object> output = TagOutput.of(new NetworkDataOutputStream(out))) {
-            output.writeBedrockFile(TagObjects.MAP);
-            bytes = out.toByteArray();
-        }
-        try (ByteArrayInputStream in = new ByteArrayInputStream(bytes); TagInput<Object> input = TagInput.of(new NetworkDataInputStream(in))) {
-            map = input.readBedrockFile();
         }
         assertTagEquals(TagObjects.MAP, map);
     }

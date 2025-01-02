@@ -98,6 +98,8 @@ public class TagInput<T> implements Closeable {
             return getMapper().buildAny(type, null);
         }
         // Skip ""
+        // For network stream compatibility use:
+        // input.readUTF();
         input.skipBytes(input.readUnsignedShort());
         return readTag(type);
     }
@@ -113,6 +115,9 @@ public class TagInput<T> implements Closeable {
 
     public <A extends T> A readBedrockFile() throws IOException {
         // Skip header
+        // For network stream compatibility use:
+        // input.readInt();
+        // input.readInt();
         input.skipBytes(8);
         return readAny();
     }
