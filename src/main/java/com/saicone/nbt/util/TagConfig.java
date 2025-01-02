@@ -37,7 +37,7 @@ public class TagConfig {
         } else if (value instanceof Boolean) {
             return value;
         }
-        final TagType<Object> type = TagType.getType(value);
+        final TagType<Object> type = mapper.type(object);
         switch (type.getId()) {
             case Tag.END:
                 return null;

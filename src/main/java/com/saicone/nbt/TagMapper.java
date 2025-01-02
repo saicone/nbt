@@ -38,6 +38,11 @@ public interface TagMapper<T> {
         return TagType.getType(t).getSize(t);
     }
 
+    @NotNull
+    default <A> TagType<A> type(@Nullable T t) {
+        return TagType.getType(t);
+    }
+
     default byte[] byteArray(@NotNull Object object) {
         final byte[] array;
         if (object instanceof byte[]) {

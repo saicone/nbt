@@ -39,7 +39,7 @@ public class TagPalette {
             .end("\u00a7r");
     public static final TagPalette JSON = new TagPalette() {
         @Override
-        public @NotNull String color(@Nullable Object value, @Nullable String indent, @NotNull TagMapper<Object> mapper) {
+        public @NotNull <T> String color(@Nullable T value, @Nullable String indent, @NotNull TagMapper<T> mapper) {
             final String result = super.color(value, indent, mapper);
             if (result.isBlank()) {
                 return "{}";
@@ -245,18 +245,19 @@ public class TagPalette {
     }
 
     @NotNull
-    public String color(@Nullable Object value, @Nullable String indent, @NotNull TagMapper<Object> mapper) {
+    public <T> String color(@Nullable T value, @Nullable String indent, @NotNull TagMapper<T> mapper) {
         return color(value, indent == null ? "" : indent, mapper, 0) + end();
     }
 
     @NotNull
-    protected String color(@Nullable Object object, @NotNull String indent, @NotNull TagMapper<Object> mapper, int count) {
-        final Object value = mapper.extract(object);
-        final TagType<?> type = TagType.getType(value);
+    @SuppressWarnings("unchecked")
+    protected <T> String color(@Nullable T object, @NotNull String indent, @NotNull TagMapper<T> mapper, int count) {
+        final TagType<?> type = mapper.type(object);
         if (!type.isValid()) {
-            throw new IllegalArgumentException("The object " + value.getClass().getName() + " is not a valid tag");
+            throw new IllegalArgumentException("Invalid tag type: " + type.getName());
         }
 
+        final Object value = mapper.extract(object);
         switch (type.getId()) {
             case Tag.END:
                 // null
@@ -281,10 +282,10 @@ public class TagPalette {
                 return colorArray(type, value);
             case Tag.LIST:
                 // [<pretty value>, <pretty value>, <pretty value>...]
-                return colorList((List<?>) value, indent, mapper, count);
+                return colorList((List<T>) value, indent, mapper, count);
             case Tag.COMPOUND:
                 // {<key>: <pretty value>, <key>: <pretty value>, <key>: <pretty value>...}
-                return colorCompound((Map<?, ?>) value, indent, mapper, count);
+                return colorCompound((Map<String, T>) value, indent, mapper, count);
             default:
                 throw new IllegalArgumentException("Invalid tag type: " + type.getName());
         }
@@ -308,13 +309,13 @@ public class TagPalette {
     }
 
     @NotNull
-    protected String colorList(@NotNull List<?> list, @NotNull String indent, @NotNull TagMapper<Object> mapper, int count) {
+    protected <T> String colorList(@NotNull List<T> list, @NotNull String indent, @NotNull TagMapper<T> mapper, int count) {
         if (list.isEmpty()) {
             return String.format(bracket(), "[]");
         }
 
         final StringJoiner joiner;
-        if (indent.isEmpty() || (list.size() <= 8 && TagType.getType(mapper.extract(list.get(0))).isPrimitive())) {
+        if (indent.isEmpty() || (list.size() <= 8 && mapper.type(list.get(0)).isPrimitive())) {
             joiner = new StringJoiner(
                     String.format(comma(), ", "),
                     String.format(bracket(), "["),
@@ -327,14 +328,14 @@ public class TagPalette {
                     String.format(bracket(), '\n' + indent.repeat(count) + ']'));
         }
 
-        for (Object o : list) {
-            joiner.add(color(o, indent, mapper, count + 1));
+        for (T t : list) {
+            joiner.add(color(t, indent, mapper, count + 1));
         }
         return joiner.toString();
     }
 
     @NotNull
-    protected String colorCompound(@NotNull Map<?, ?> map, @NotNull String indent, @NotNull TagMapper<Object> mapper, int count) {
+    protected <T> String colorCompound(@NotNull Map<String, T> map, @NotNull String indent, @NotNull TagMapper<T> mapper, int count) {
         if (map.isEmpty()) {
             return String.format(base(), "{}");
         }
@@ -354,7 +355,7 @@ public class TagPalette {
         }
 
         for (var entry : map.entrySet()) {
-            joiner.add(String.format(key() + colon(), String.valueOf(entry.getKey()), ": ") + color(entry.getValue(), indent, mapper, count + 1));
+            joiner.add(String.format(key() + colon(), entry.getKey(), ": ") + color(entry.getValue(), indent, mapper, count + 1));
         }
         return joiner.toString();
     }

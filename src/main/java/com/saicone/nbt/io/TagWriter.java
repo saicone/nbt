@@ -67,7 +67,7 @@ public class TagWriter<T> extends Writer {
         if (value == null) {
             return;
         }
-        final TagType<Object> type = TagType.getType(value);
+        final TagType<Object> type = mapper.type(t);
         if (!type.isValid()) {
             throw new IOException("Cannot write invalid tag: " + type.getName());
         }

@@ -34,7 +34,7 @@ public class TagJson {
         if (value instanceof Boolean) {
             return new JsonPrimitive((Boolean) value);
         }
-        final TagType<?> type = TagType.getType(value);
+        final TagType<?> type = mapper.type(object);
         switch (type.getId()) {
             case Tag.END:
                 return JsonNull.INSTANCE;

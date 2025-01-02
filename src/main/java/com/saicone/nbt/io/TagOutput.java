@@ -44,7 +44,7 @@ public class TagOutput<T> implements Closeable {
 
     public void writeUnnamed(@Nullable T t) throws IOException {
         final Object value = t == null ? null : mapper.extract(t);
-        final TagType<Object> type = TagType.getType(value);
+        final TagType<Object> type = mapper.type(t);
         output.writeByte(type.getId());
         if (type == TagType.END) {
             return;
@@ -55,7 +55,7 @@ public class TagOutput<T> implements Closeable {
 
     public void writeAny(@Nullable T t) throws IOException {
         final Object value = t == null ? null : mapper.extract(t);
-        final TagType<Object> type = TagType.getType(value);
+        final TagType<Object> type = mapper.type(t);
         output.writeByte(type.getId());
         if (type == TagType.END) {
             return;
@@ -79,7 +79,7 @@ public class TagOutput<T> implements Closeable {
 
     public void writeTag(@Nullable T t) throws IOException {
         final Object value = t == null ? null : mapper.extract(t);
-        final TagType<Object> type = TagType.getType(value);
+        final TagType<Object> type = mapper.type(t);
         writeTag(type, value);
     }
 
@@ -162,7 +162,7 @@ public class TagOutput<T> implements Closeable {
         if (list.isEmpty()) {
             type = TagType.END;
         } else {
-            type = TagType.getType(mapper.extract(list.get(0)));
+            type = mapper.type(list.get(0));
         }
 
         output.writeByte(type.getId());
@@ -176,7 +176,7 @@ public class TagOutput<T> implements Closeable {
     protected void writeCompound(@NotNull Map<String, T> map) throws IOException {
         for (Map.Entry<String, T> entry : map.entrySet()) {
             final Object value = entry.getValue() == null ? null : mapper.extract(entry.getValue());
-            final TagType<Object> type = TagType.getType(value);
+            final TagType<Object> type = mapper.type(entry.getValue());
             output.writeByte(type.getId());
             if (type != TagType.END) {
                 output.writeUTF(entry.getKey());
