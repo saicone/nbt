@@ -77,13 +77,13 @@ public class TagConfig {
     }
 
     @Nullable
-    public <A> A fromConfigValue(@Nullable Object value) {
+    public static <A> A fromConfigValue(@Nullable Object value) {
         return fromConfigValue(value, TagMapper.DEFAULT);
     }
 
     @Nullable
     @SuppressWarnings("unchecked")
-    public <T, A extends T> A fromConfigValue(@Nullable Object value, @NotNull TagMapper<T> mapper) {
+    public static <T, A extends T> A fromConfigValue(@Nullable Object value, @NotNull TagMapper<T> mapper) {
         if (value == null) {
             return null;
         } else if (value instanceof Boolean) {
@@ -130,7 +130,7 @@ public class TagConfig {
     }
 
     @Nullable
-    private <T, A extends T> A fromConfigString(@NotNull String value, @NotNull TagMapper<T> mapper) {
+    private static <T, A extends T> A fromConfigString(@NotNull String value, @NotNull TagMapper<T> mapper) {
         if (value.length() < 2) {
             return mapper.buildAny(TagType.STRING, value);
         }

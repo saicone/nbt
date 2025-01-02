@@ -40,7 +40,7 @@ public class TagInput<T> implements Closeable {
 
     @NotNull
     @Contract("_ -> this")
-    public TagInput<T> quota(long quota) {
+    public TagInput<T> maxQuota(long quota) {
         this.maxQuota = quota;
         this.remainingQuota = quota;
         return this;

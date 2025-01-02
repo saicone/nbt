@@ -15,7 +15,7 @@
     <a href="https://jitpack.io/#com.saicone/nbt">
         <img src="https://img.shields.io/github/v/tag/saicone/nbt?style=flat-square&logo=jitpack&logoColor=white&label=JitPack&color=brigthgreen"/>
     </a>
-    <a href="https://javadoc.saicone.com/types/">
+    <a href="https://javadoc.saicone.com/nbt/">
         <img src="https://img.shields.io/badge/JavaDoc-Online-green?style=flat-square"/>
     </a>
 </p>
@@ -68,7 +68,7 @@ Map<String, Object> map = TagConfig.fromConfigValue(config);
 
 ## Dependency
 
-How to implement Types library in your project.
+How to implement NBT library in your project.
 
 <details>
   <summary>build.gradle</summary>
@@ -89,7 +89,7 @@ dependencies {
 jar.dependsOn (shadowJar)
 
 shadowJar {
-    // Relocate types
+    // Relocate nbt
     relocate 'com.saicone.nbt', project.group + '.libs.nbt'
     // Exclude unused classes (optional)
     minimize()
@@ -120,7 +120,7 @@ tasks {
     }
 
     shadowJar {
-        // Relocate types
+        // Relocate nbt
         relocate("com.saicone.nbt", "${project.group}.libs.nbt")
         // Exclude unused classes (optional)
         minimize()
@@ -157,7 +157,7 @@ tasks {
         <version>3.3.0</version>
         <configuration>
             <relocations>
-                <!-- Relocate types -->
+                <!-- Relocate nbt -->
                 <relocation>
                     <pattern>com.saicone.nbt</pattern>
                     <shadedPattern>${project.groupId}.libs.nbt</shadedPattern>
