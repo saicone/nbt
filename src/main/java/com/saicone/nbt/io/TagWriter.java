@@ -109,7 +109,7 @@ public class TagWriter<T> extends Writer {
     }
 
     public <A> void writePrimitiveTag(@NotNull TagType<A> type, @NotNull A a) throws IOException {
-        if (type == TagType.DOUBLE) {
+        if (type == TagType.DOUBLE || type == TagType.INT) {
             write(String.valueOf(a));
         } else {
             write(String.valueOf(a) + type.getSuffix());
@@ -117,11 +117,11 @@ public class TagWriter<T> extends Writer {
     }
 
     public void writeStringTag(@NotNull String s) throws IOException {
-        write('"' + s.replace("\"", "\\\"") + '"');
+        write("\"" + s.replace("\"", "\\\"") + "\"");
     }
 
     public void writeByteArrayTag(byte[] bytes) throws IOException {
-        write('[' + TagType.BYTE_ARRAY.getSuffix() + ";");
+        write("[" + TagType.BYTE_ARRAY.getSuffix() + ";");
         boolean delimiter = false;
         for (byte b : bytes) {
             if (delimiter) {
@@ -136,7 +136,7 @@ public class TagWriter<T> extends Writer {
     }
 
     public void writeBooleanArrayTag(boolean[] booleans) throws IOException {
-        write('[' + TagType.BOOLEAN.getSuffix() + ";");
+        write("[" + TagType.BOOLEAN_ARRAY.getSuffix() + ";");
         boolean delimiter = false;
         for (boolean b : booleans) {
             if (delimiter) {
@@ -151,7 +151,7 @@ public class TagWriter<T> extends Writer {
     }
 
     public void writeIntArrayTag(int[] ints) throws IOException {
-        write('[' + TagType.INT.getSuffix() + ";");
+        write("[" + TagType.INT_ARRAY.getSuffix() + ";");
         boolean delimiter = false;
         for (int i : ints) {
             if (delimiter) {
@@ -166,14 +166,14 @@ public class TagWriter<T> extends Writer {
     }
 
     public void writeLongArrayTag(long[] longs) throws IOException {
-        write('[' + TagType.LONG.getSuffix() + ";");
+        write("[" + TagType.LONG_ARRAY.getSuffix() + ";");
         boolean delimiter = false;
         for (long l : longs) {
             if (delimiter) {
                 write(',');
             }
 
-            write(String.valueOf(l) + TagType.LONG.getSuffix());
+            write(String.valueOf(l) + TagType.LONG_ARRAY.getSuffix());
 
             delimiter = true;
         }

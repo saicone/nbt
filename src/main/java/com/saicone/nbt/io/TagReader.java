@@ -254,8 +254,9 @@ public class TagReader<T> extends Reader {
 
     @NotNull
     protected String readUnquoted() throws IOException {
+        skipSpaces();
         final int first = read();
-        if (first == UNKNOWN_CHARACTER) {
+        if (first == UNKNOWN_CHARACTER || !isUnquoted(first)) {
             throw new IOException("Cannot read unquoted string");
         }
         return readUnquoted(first);
