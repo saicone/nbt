@@ -49,6 +49,7 @@ public class TagOutput<T> implements Closeable {
         if (type == TagType.END) {
             return;
         }
+        // Write empty name
         output.writeUTF("");
         writeTag(type, value);
     }

@@ -1,6 +1,7 @@
 package com.saicone.nbt.util.zip;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -19,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.Optional;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
@@ -50,20 +52,41 @@ public abstract class ZipFormat {
     }
 
     public boolean isFormatted(@NotNull File file) throws IOException {
+        final Optional<int[]> bytes = getByteHeader(file);
+        return bytes.isPresent() && isFormatted(bytes.get());
+    }
+
+    public boolean isFormatted(@NotNull Path path) throws IOException {
+        final Optional<int[]> bytes = getByteHeader(path);
+        return bytes.isPresent() && isFormatted(bytes.get());
+    }
+
+    public boolean isFormatted(@NotNull InputStream input) throws IOException {
+        final Optional<int[]> bytes = getByteHeader(input);
+        return bytes.isPresent() && isFormatted(bytes.get());
+    }
+
+    public abstract boolean isFormatted(int[] bytes);
+
+    protected abstract int getByteSize();
+
+    @NotNull
+    protected Optional<int[]> getByteHeader(@NotNull File file) throws IOException {
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
             final int[] bytes = new int[getByteSize()];
             for (int i = 0; i < bytes.length; i++) {
                 final int b = raf.read();
                 if (b <= -1 || b > 255) {
-                    return false;
+                    return Optional.empty();
                 }
                 bytes[i] = b;
             }
-            return isFormatted(bytes);
+            return Optional.of(bytes);
         }
     }
 
-    public boolean isFormatted(@NotNull Path path) throws IOException {
+    @NotNull
+    protected Optional<int[]> getByteHeader(@NotNull Path path) throws IOException {
         try (SeekableByteChannel byteChannel = Files.newByteChannel(path, StandardOpenOption.READ)) {
             final ByteBuffer buffer = ByteBuffer.allocate(getByteSize());
             byteChannel.read(buffer);
@@ -73,15 +96,16 @@ public abstract class ZipFormat {
             for (int i = 0; i < bytes.length; i++) {
                 final int b = buffer.get();
                 if (b <= -1) {
-                    return false;
+                    return Optional.empty();
                 }
                 bytes[i] = b;
             }
-            return isFormatted(bytes);
+            return Optional.of(bytes);
         }
     }
 
-    public boolean isFormatted(@NotNull InputStream input) throws IOException {
+    @NotNull
+    protected Optional<int[]> getByteHeader(@NotNull InputStream input) throws IOException {
         final InputStream in;
         if (input.markSupported()) {
             in = input;
@@ -95,18 +119,14 @@ public abstract class ZipFormat {
             final int b = in.read();
             if (b == -1) {
                 in.reset();
-                return false;
+                return Optional.empty();
             }
             bytes[i] = b;
         }
         in.reset();
 
-        return isFormatted(bytes);
+        return Optional.of(bytes);
     }
-
-    public abstract boolean isFormatted(int[] bytes);
-
-    protected abstract int getByteSize();
 
     @NotNull
     public InputStream newInputStream(@NotNull File file) throws IOException {
@@ -177,11 +197,27 @@ public abstract class ZipFormat {
 
         @Override
         public boolean isFormatted(int[] bytes) {
-            return getCompressionLevel(bytes[0], bytes[1]) != Integer.MIN_VALUE;
+            return getCompressionLevel(bytes) != null;
         }
 
-        public int getCompressionLevel(int ID1, int ID2) {
-            return LEVELS.getOrDefault((ID1 << 8) | ID2, Integer.MIN_VALUE);
+        @Nullable
+        public Integer getCompressionLevel(@NotNull File file) throws IOException {
+            return getByteHeader(file).map(this::getCompressionLevel).orElse(null);
+        }
+
+        @Nullable
+        public Integer getCompressionLevel(@NotNull Path path) throws IOException {
+            return getByteHeader(path).map(this::getCompressionLevel).orElse(null);
+        }
+
+        @Nullable
+        public Integer getCompressionLevel(@NotNull InputStream input) throws IOException {
+            return getByteHeader(input).map(this::getCompressionLevel).orElse(null);
+        }
+
+        @Nullable
+        protected Integer getCompressionLevel(int[] bytes) {
+            return LEVELS.get((bytes[0] << 8) | bytes[1]);
         }
 
         @Override

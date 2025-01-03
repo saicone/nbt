@@ -39,6 +39,12 @@ public class TagInput<T> implements Closeable {
     }
 
     @NotNull
+    @Contract("-> this")
+    public TagInput<T> unlimited() {
+        return maxQuota(Long.MAX_VALUE);
+    }
+
+    @NotNull
     @Contract("_ -> this")
     public TagInput<T> maxQuota(long quota) {
         this.maxQuota = quota;
@@ -76,6 +82,9 @@ public class TagInput<T> implements Closeable {
     }
 
     protected void useBytes(long bytes) {
+        if (this.maxQuota == Long.MAX_VALUE) {
+            return;
+        }
         if ((remainingQuota -= bytes) < 0) {
             throw new IllegalArgumentException("Cannot read tag bigger than " + this.maxQuota + " bytes");
         }
@@ -97,7 +106,7 @@ public class TagInput<T> implements Closeable {
         if (type == TagType.END) {
             return getMapper().buildAny(type, null);
         }
-        // Skip ""
+        // Skip name
         // For network stream compatibility use:
         // input.readUTF();
         input.skipBytes(input.readUnsignedShort());
