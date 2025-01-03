@@ -48,6 +48,7 @@ public class TagPalette {
         }
     }
             .base("{\"type\":\"text\",\"color\":\"white\",\"text\":\"%s\"},")
+            .quote("{\"type\":\"text\",\"color\":\"white\",\"text\":\"\\%s\"},")
             .key("{\"type\":\"text\",\"color\":\"aqua\",\"text\":\"%s\"},")
             .type("{\"type\":\"text\",\"color\":\"gold\",\"text\":\"%s\"},")
             .type(TagType.STRING, "{\"type\":\"text\",\"color\":\"green\",\"text\":\"%s\"},")
@@ -274,7 +275,7 @@ public class TagPalette {
                 return String.format(type(type) + suffix(type), String.valueOf(value), String.valueOf(type.getSuffix()));
             case Tag.STRING:
                 // "<value>"
-                return String.format(quote() + type(TagType.STRING) + quote(), value);
+                return String.format(quote() + type(TagType.STRING) + quote(), "\"", value, "\"");
             case Tag.BYTE_ARRAY:
             case Tag.INT_ARRAY:
             case Tag.LONG_ARRAY:
@@ -325,7 +326,7 @@ public class TagPalette {
             joiner = new StringJoiner(
                     String.format(comma(), ",\n" + s),
                     String.format(bracket(), "[\n" + s),
-                    String.format(bracket(), '\n' + indent.repeat(count) + ']'));
+                    String.format(bracket(), "\n" + indent.repeat(count) + "]"));
         }
 
         for (T t : list) {
@@ -351,7 +352,7 @@ public class TagPalette {
             joiner = new StringJoiner(
                     String.format(comma(), ",\n" + s),
                     String.format(base(), "{\n" + s),
-                    String.format(base(), '\n' + indent.repeat(count) + '}'));
+                    String.format(base(), "\n" + indent.repeat(count) + "}"));
         }
 
         for (var entry : map.entrySet()) {
