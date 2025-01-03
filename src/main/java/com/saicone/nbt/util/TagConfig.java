@@ -137,7 +137,7 @@ public class TagConfig {
         if (value.startsWith("[") && value.endsWith("]")) {
             if (value.startsWith("[B;")) {
                 final List<Byte> list = new ArrayList<>();
-                for (String s : value.substring(4).split(",")) {
+                for (String s : value.substring(3, value.length() - 1).split(",")) {
                     if (!s.endsWith("B")) {
                         list.clear();
                         return mapper.buildAny(TagType.STRING, value);
@@ -151,7 +151,7 @@ public class TagConfig {
                 return mapper.buildAny(TagType.BYTE_ARRAY, array);
             } else if (value.startsWith("[L;")) {
                 final List<Long> list = new ArrayList<>();
-                for (String s : value.substring(4).split(",")) {
+                for (String s : value.substring(3, value.length() - 1).split(",")) {
                     if (!s.endsWith("L")) {
                         list.clear();
                         return mapper.buildAny(TagType.STRING, value);
@@ -165,7 +165,7 @@ public class TagConfig {
                 return mapper.buildAny(TagType.LONG_ARRAY, array);
             } else if (value.startsWith("[I;")) {
                 final List<Integer> list = new ArrayList<>();
-                for (String s : value.substring(4).split(",")) {
+                for (String s : value.substring(3, value.length() - 1).split(",")) {
                     list.add(Integer.parseInt(s.trim()));
                 }
                 final int[] array = new int[list.size()];

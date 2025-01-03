@@ -19,7 +19,7 @@ public class TagConfigTest {
         CONFIG_MAP.put("int", 3);
         CONFIG_MAP.put("long", "4l");
         CONFIG_MAP.put("float", "5.0f");
-        CONFIG_MAP.put("double", "6.0");
+        CONFIG_MAP.put("double", 6D);
         CONFIG_MAP.put("byte array", "[B;1B,2B,3B,4B]");
         CONFIG_MAP.put("string", "test123");
         CONFIG_MAP.put("integer list", List.of(1, 2, 3, 4));
