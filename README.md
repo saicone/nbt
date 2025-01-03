@@ -182,7 +182,12 @@ tasks {
 
 ## Tag mappers
 
+A tag mapper is a customizable tag abstraction, for example, most NBT implementations use classes like "TagString" or "NbtCompound" referring the kind of value that is handled.
+
+With a tag mapper this library can build NBT objects as that custom implementation and extract the values from it.
+
 This library by default is compatible with any Java object that is represented on [NBT format](https://minecraft.wiki/w/NBT_format):
+
 0. END = `null`
 1. BYTE = `byte`
 2. SHORT = `short`
