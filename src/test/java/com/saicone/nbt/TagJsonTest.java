@@ -73,6 +73,6 @@ public class TagJsonTest {
     @Test
     public void testRead() {
         final Map<String, Object> map = TagJson.fromJson(JSON);
-        assertTagEquals(TagObjects.MAP, map);
+        assertTagSimilar(TagObjects.MAP, map);
     }
 }

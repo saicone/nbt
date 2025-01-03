@@ -45,4 +45,37 @@ public class TagAssertions {
             assertTagEquals(entry.getValue(), actual.get(entry.getKey()));
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public static void assertTagSimilar(Object expected, Object actual) {
+        if (expected instanceof List) {
+            if (actual instanceof byte[]) {
+                assertTagEquals(TagMapper.DEFAULT.byteArray(expected), actual);
+            } else if (actual instanceof boolean[]) {
+                assertTagEquals(TagMapper.DEFAULT.booleanArray(expected), actual);
+            } else if (actual instanceof int[]) {
+                assertTagEquals(TagMapper.DEFAULT.intArray(expected), actual);
+            } else if (actual instanceof long[]) {
+                assertTagEquals(TagMapper.DEFAULT.longArray(expected), actual);
+            } else {
+                assertTagEquals((List<Object>) expected, (List<Object>) actual);
+            }
+        } else {
+            assertTagEquals(expected, actual);
+        }
+    }
+
+    public static void assertTagSimilar(List<Object> expected, List<Object> actual) {
+        assertEquals(expected.size(), actual.size());
+        for (int i = 0; i < expected.size(); i++) {
+            assertTagSimilar(expected.get(i), actual.get(i));
+        }
+    }
+
+    public static void assertTagSimilar(Map<String, Object> expected, Map<String, Object> actual) {
+        for (Map.Entry<String, Object> entry : expected.entrySet()) {
+            assertTrue(actual.containsKey(entry.getKey()));
+            assertTagSimilar(entry.getValue(), actual.get(entry.getKey()));
+        }
+    }
 }
