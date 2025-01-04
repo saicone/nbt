@@ -27,6 +27,12 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 
+/**
+ * Utility class for compression algorithms related methods.<br>
+ * Compatibility with gzip, zlib and lz4 is provided by default.
+ *
+ * @author Rubenicos
+ */
 public abstract class ZipFormat {
 
     private static final StandardOpenOption[] DEFAULT_OPEN_OPTIONS = new StandardOpenOption[] {
@@ -36,40 +42,100 @@ public abstract class ZipFormat {
             StandardOpenOption.WRITE
     };
 
+    /**
+     * Get gzip compression algorithm implementation.
+     *
+     * @return a zip format utility implementation.
+     */
     @NotNull
     public static Gzip gzip() {
         return Gzip.INSTANCE;
     }
 
+    /**
+     * Get zlib compression algorithm implementation.
+     *
+     * @return a zip format utility implementation.
+     */
     @NotNull
     public static Zlib zlib() {
         return Zlib.INSTANCE;
     }
 
+    /**
+     * Get lz4 compression algorithm implementation.
+     *
+     * @return a zip format utility implementation.
+     */
     @NotNull
     public static Lz4 lz4() {
         return Lz4.INSTANCE;
     }
 
+    /**
+     * Constructs a zip format.
+     */
+    public ZipFormat() {
+    }
+
+    /**
+     * Check if the provided file is formatted with the current algorithm implementation.
+     *
+     * @param file the file to check.
+     * @return     true is the file is formatted, false otherwise.
+     * @throws IOException if any I/O error occurs.
+     */
     public boolean isFormatted(@NotNull File file) throws IOException {
         final Optional<int[]> bytes = getByteHeader(file);
         return bytes.isPresent() && isFormatted(bytes.get());
     }
 
+    /**
+     * Check if the provided path is formatted with the current algorithm implementation.
+     *
+     * @param path the path to check.
+     * @return     true is the path is formatted, false otherwise.
+     * @throws IOException if any I/O error occurs.
+     */
     public boolean isFormatted(@NotNull Path path) throws IOException {
         final Optional<int[]> bytes = getByteHeader(path);
         return bytes.isPresent() && isFormatted(bytes.get());
     }
 
+    /**
+     * Check if the provided {@link InputStream} is formatted with the current algorithm implementation.
+     *
+     * @param input the {@link InputStream} to check.
+     * @return      true is the {@link InputStream} is formatted, false otherwise.
+     * @throws IOException if any I/O error occurs.
+     */
     public boolean isFormatted(@NotNull InputStream input) throws IOException {
         final Optional<int[]> bytes = getByteHeader(input);
         return bytes.isPresent() && isFormatted(bytes.get());
     }
 
+    /**
+     * Check if the provided byte array is formatted with the current algorithm implementation.
+     *
+     * @param bytes the byte array to check.
+     * @return      true is the byte array is formatted, false otherwise.
+     */
     public abstract boolean isFormatted(int[] bytes);
 
+    /**
+     * Get size of bytes that the current algorithm implementation have.
+     *
+     * @return a size of bytes.
+     */
     protected abstract int getByteSize();
 
+    /**
+     * Get the byte array header required by the current algorithm implementation from file.
+     *
+     * @param file the file to read with random file access.
+     * @return     a byte array header.
+     * @throws IOException if any I/O error occurs.
+     */
     @NotNull
     protected Optional<int[]> getByteHeader(@NotNull File file) throws IOException {
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
@@ -85,6 +151,13 @@ public abstract class ZipFormat {
         }
     }
 
+    /**
+     * Get the byte array header required by the current algorithm implementation from path.
+     *
+     * @param path the path to read with limited size byte channel.
+     * @return     a byte array header.
+     * @throws IOException if any I/O error occurs.
+     */
     @NotNull
     protected Optional<int[]> getByteHeader(@NotNull Path path) throws IOException {
         try (SeekableByteChannel byteChannel = Files.newByteChannel(path, StandardOpenOption.READ)) {
@@ -104,6 +177,13 @@ public abstract class ZipFormat {
         }
     }
 
+    /**
+     * Get the byte array header required by the current algorithm implementation from {@link InputStream}.
+     *
+     * @param input the {@link InputStream} to read with position marks.
+     * @return      a byte array header.
+     * @throws IOException if any I/O error occurs.
+     */
     @NotNull
     protected Optional<int[]> getByteHeader(@NotNull InputStream input) throws IOException {
         final InputStream in;
@@ -128,36 +208,97 @@ public abstract class ZipFormat {
         return Optional.of(bytes);
     }
 
+    /**
+     * Create an {@link InputStream} with the current algorithm implementation.
+     *
+     * @param file the file to be opened for reading.
+     * @return     a newly generated {@link InputStream}.
+     * @throws IOException if any I/O error occurs.
+     */
     @NotNull
     public InputStream newInputStream(@NotNull File file) throws IOException {
         return newInputStream(new FileInputStream(file));
     }
 
+    /**
+     * Create an {@link InputStream} with the current algorithm implementation.
+     *
+     * @param path the path to the file to open.
+     * @return     a newly generated {@link InputStream}.
+     * @throws IOException if any I/O error occurs.
+     */
     @NotNull
     public InputStream newInputStream(@NotNull Path path) throws IOException {
         return newInputStream(Files.newInputStream(path));
     }
 
+    /**
+     * Create an {@link InputStream} with the current algorithm implementation.
+     *
+     * @param input the input stream to encapsulate.
+     * @return      a newly generated {@link InputStream}.
+     * @throws IOException if any I/O error occurs.
+     */
     @NotNull
     public abstract InputStream newInputStream(@NotNull InputStream input) throws IOException;
 
+    /**
+     * Create an {@link OutputStream} with the current algorithm implementation.
+     *
+     * @param file the file to be opened for writing.
+     * @return     a newly generated {@link OutputStream}.
+     * @throws IOException if any I/O error occurs.
+     */
     @NotNull
     public OutputStream newOutputStream(@NotNull File file) throws IOException {
         return newOutputStream(new FileOutputStream(file));
     }
 
+    /**
+     * Create an {@link OutputStream} with the current algorithm implementation.
+     *
+     * @param path the path to the file to open or create.
+     * @return     a newly generated {@link OutputStream}.
+     * @throws IOException if any I/O error occurs.
+     */
     @NotNull
     public OutputStream newOutputStream(@NotNull Path path) throws IOException {
         return newOutputStream(Files.newOutputStream(path, DEFAULT_OPEN_OPTIONS));
     }
 
+    /**
+     * Create an {@link OutputStream} with the current algorithm implementation.
+     *
+     * @param output the output stream to encapsulate.
+     * @return       a newly generated {@link OutputStream}.
+     * @throws IOException if any I/O error occurs.
+     */
     @NotNull
     public abstract OutputStream newOutputStream(@NotNull OutputStream output) throws IOException;
 
+    /**
+     * {@link ZipFormat} implementation for gzip algorithm.
+     */
     public static class Gzip extends ZipFormat {
 
+        /**
+         * {@link Gzip} public instance.
+         */
         public static final Gzip INSTANCE = new Gzip();
 
+        /**
+         * Constructs a gzip format.
+         */
+        public Gzip() {
+        }
+
+        /**
+         * Check if the provided bytes are the same has {@link GZIPInputStream#GZIP_MAGIC}.
+         *
+         * @param ID1 the first id.
+         * @param ID2 the second id.
+         * @return    true if the IDs are the same has {@link GZIPInputStream#GZIP_MAGIC}.
+         */
         public boolean isGzipHeader(int ID1, int ID2) {
             // For some reason, GZIP_MAGIC is defined as little-endian
             return ((ID2 << 8) | ID1) == GZIPInputStream.GZIP_MAGIC;
@@ -184,8 +325,14 @@ public abstract class ZipFormat {
         }
     }
 
+    /**
+     * {@link ZipFormat} implementation for zlib algorithm.
+     */
     public static class Zlib extends ZipFormat {
 
+        /**
+         * {@link Zlib} public instance.
+         */
         public static final Zlib INSTANCE = new Zlib();
 
         private static final Map<Integer, Integer> LEVELS = Map.of(
@@ -195,26 +342,60 @@ public abstract class ZipFormat {
                 0x78DA, Deflater.BEST_COMPRESSION
         );
 
+        /**
+         * Constructs a zlib format.
+         */
+        public Zlib() {
+        }
+
         @Override
         public boolean isFormatted(int[] bytes) {
             return getCompressionLevel(bytes) != null;
         }
 
+        /**
+         * Get zlib compression level from file.
+         *
+         * @param file the file to check.
+         * @return     a valid compression level if file is zlib formatted, null otherwise.
+         * @throws IOException if any I/O occurs.
+         */
         @Nullable
         public Integer getCompressionLevel(@NotNull File file) throws IOException {
             return getByteHeader(file).map(this::getCompressionLevel).orElse(null);
         }
 
+        /**
+         * Get zlib compression level from path.
+         *
+         * @param path the path to check.
+         * @return     a valid compression level if path is zlib formatted, null otherwise.
+         * @throws IOException if any I/O occurs.
+         */
         @Nullable
         public Integer getCompressionLevel(@NotNull Path path) throws IOException {
             return getByteHeader(path).map(this::getCompressionLevel).orElse(null);
         }
 
+
+        /**
+         * Get zlib compression level from {@link InputStream}.
+         *
+         * @param input the {@link InputStream} to check.
+         * @return      a valid compression level if {@link InputStream} is zlib formatted, null otherwise.
+         * @throws IOException if any I/O occurs.
+         */
         @Nullable
         public Integer getCompressionLevel(@NotNull InputStream input) throws IOException {
             return getByteHeader(input).map(this::getCompressionLevel).orElse(null);
         }
 
+        /**
+         * Get zlib compression level from byte array header.
+         *
+         * @param bytes the bytes to check.
+         * @return      a valid compression level if found, null otherwise.
+         */
         @Nullable
         protected Integer getCompressionLevel(int[] bytes) {
             return LEVELS.get((bytes[0] << 8) | bytes[1]);
@@ -236,10 +417,19 @@ public abstract class ZipFormat {
         }
     }
 
+    /**
+     * {@link ZipFormat} implementation for lz4 algorithm.
+     */
     public static class Lz4 extends ZipFormat {
 
+        /**
+         * {@link Lz4} public instance.
+         */
         public static final Lz4 INSTANCE = new Lz4();
 
+        /**
+         * Lz4 header magic number.
+         */
         public static final int MAGIC = 0x184d2204; // 04 22 4d 18 header as little-endian
 
         private static final MethodHandle newFrameInputStream;
@@ -260,6 +450,17 @@ public abstract class ZipFormat {
             newFrameOutputStream = new$FrameOutputStream;
         }
 
+        /**
+         * Constructs a lz4 format.
+         */
+        public Lz4() {
+        }
+
+        /**
+         * Check if lz4 library is loaded on classpath.
+         *
+         * @return true if lz4 library is loaded, false otherwise.
+         */
         public boolean isLoaded() {
             return newFrameInputStream != null && newFrameOutputStream != null;
         }

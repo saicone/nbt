@@ -6,10 +6,22 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UTFDataFormatException;
 
+/**
+ * A delegated-first data output implementation that executes all the methods into delegated {@link DataOutput}.<br>
+ * The main difference will be that any {@link UTFDataFormatException} will make the method to be executed again
+ * with an empty string instead.
+ *
+ * @author Rubenicos
+ */
 public class FallbackDataOutput implements DataOutput {
 
     private final DataOutput output;
 
+    /**
+     * Constructs a fallback data output with delegated {@link DataOutput}.
+     *
+     * @param output the data output to delegate all the methods.
+     */
     public FallbackDataOutput(@NotNull DataOutput output) {
         this.output = output;
     }

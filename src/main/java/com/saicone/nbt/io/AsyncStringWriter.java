@@ -7,14 +7,30 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 
+/**
+ * A character stream that do the same functionality as {@link java.io.StringWriter} but using a {@link StringBuilder}
+ * instead, that provides an asynchronous implementation of string writing.<br>
+ * Same as {@link java.io.StringWriter}, closing this implementation has no effect since string builder is not
+ * a closeable implementation.
+ *
+ * @author Rubenicos
+ */
 public class AsyncStringWriter extends Writer {
 
     private final StringBuilder builder;
 
+    /**
+     * Constructs an asynchronous string writer with newly generated string builder.
+     */
     public AsyncStringWriter() {
         this(new StringBuilder());
     }
 
+    /**
+     * Constructs an asynchronous string writer.
+     *
+     * @param builder the string builder to append all characters.
+     */
     public AsyncStringWriter(@NotNull StringBuilder builder) {
         this.builder = builder;
     }
@@ -61,6 +77,11 @@ public class AsyncStringWriter extends Writer {
         return builder.toString();
     }
 
+    /**
+     * Get current string builder used to append characters.
+     *
+     * @return a string builder.
+     */
     @NotNull
     public StringBuilder getBuilder() {
         return builder;

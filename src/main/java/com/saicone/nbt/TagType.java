@@ -7,34 +7,79 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Define a tag type with associated object representation.<br>
+ * A tag type can be used to get common information about tags like
+ * ID, name, pretty name and size in bytes.
+ *
+ * @author Rubenicos
+ *
+ * @param <T> the type of object represented by NBT value.
+ */
 public class TagType<T> {
 
+    /**
+     * End tag type, a tag that represent the end of stream or a null value.
+     */
     public static final TagType<Object> END = new TagType<>(Tag.END, "END", "TAG_End", 8);
+    /**
+     * Byte tag type.
+     */
     public static final TagType<Byte> BYTE = new TagType<>(Tag.BYTE, "BYTE", "TAG_Byte", 'b', 9);
+    /**
+     * Byte tag type represented as boolean value, only for compatibility purposes, this is not even a real tag type.
+     */
     public static final TagType<Boolean> BOOLEAN = new TagType<>(Tag.BYTE, "BYTE", "TAG_Byte", 9);
+    /**
+     * Short tag type.
+     */
     public static final TagType<Short> SHORT = new TagType<>(Tag.SHORT, "SHORT", "TAG_Short", 's', 10);
+    /**
+     * Integer tag type.
+     */
     public static final TagType<Integer> INT = new TagType<>(Tag.INT, "INT", "TAG_Int", 12);
+    /**
+     * Long tag type.
+     */
     public static final TagType<Long> LONG = new TagType<>(Tag.LONG, "LONG", "TAG_Long", 'l', 16);
+    /**
+     * Float tag type.
+     */
     public static final TagType<Float> FLOAT = new TagType<>(Tag.FLOAT, "FLOAT", "TAG_Float", 'f', 12);
+    /**
+     * Double tag type.
+     */
     public static final TagType<Double> DOUBLE = new TagType<>(Tag.DOUBLE, "DOUBLE", "TAG_Double", 'd', 16);
+    /**
+     * Byte array tag type.
+     */
     public static final TagType<byte[]> BYTE_ARRAY = new TagType<>(Tag.BYTE_ARRAY, "BYTE[]", "TAG_Byte_Array", 'B', 24) {
         @Override
         public int getSize(byte[] bytes) {
             return getSize() + Byte.BYTES * bytes.length;
         }
     };
+    /**
+     * Byte array tag type represented as boolean array value, only for compatibility purposes, this is not even a real tag type.
+     */
     public static final TagType<boolean[]> BOOLEAN_ARRAY = new TagType<>(Tag.BYTE_ARRAY, "BYTE[]", "TAG_Byte_Array", 'B', 24) {
         @Override
         public int getSize(boolean[] booleans) {
             return getSize() + Byte.BYTES * booleans.length;
         }
     };
+    /**
+     * String tag type.
+     */
     public static final TagType<String> STRING = new TagType<>(Tag.STRING, "STRING", "TAG_String", 36) {
         @Override
         public int getSize(String s) {
             return getSize() + Short.BYTES * s.length();
         }
     };
+    /**
+     * List tag type.
+     */
     public static final TagType<List<Object>> LIST = new TagType<>(Tag.LIST, "LIST", "TAG_List", 37) {
         @Override
         public int getSize(List<Object> list) {
@@ -48,6 +93,9 @@ public class TagType<T> {
             return size;
         }
     };
+    /**
+     * Compound tag type.
+     */
     public static final TagType<Map<String, Object>> COMPOUND = new TagType<>(Tag.COMPOUND, "COMPOUND", "TAG_Compound", 48) {
         @Override
         public int getSize(Map<String, Object> map) {
@@ -62,12 +110,18 @@ public class TagType<T> {
             return size;
         }
     };
+    /**
+     * Integer array tag type.
+     */
     public static final TagType<int[]> INT_ARRAY = new TagType<>(Tag.INT_ARRAY, "INT[]", "TAG_Int_Array", 'I', 24) {
         @Override
         public int getSize(int[] ints) {
             return getSize() + Integer.BYTES * ints.length;
         }
     };
+    /**
+     * Long array tag type.
+     */
     public static final TagType<long[]> LONG_ARRAY = new TagType<>(Tag.LONG_ARRAY, "LONG[]", "TAG_Long_Array", 'L', 24) {
         @Override
         public int getSize(long[] longs) {
@@ -139,22 +193,47 @@ public class TagType<T> {
         this.size = size;
     }
 
+    /**
+     * Check if the current tag type is a valid tag.
+     *
+     * @return true is this is a valid tag, false otherwise.
+     */
     public boolean isValid() {
         return true;
     }
 
+    /**
+     * Check if the current tag type represents a primitive object type.
+     *
+     * @return true if this a primitive object representation.
+     */
     public boolean isPrimitive() {
         return id >= Tag.BYTE && id <= Tag.DOUBLE;
     }
 
+    /**
+     * Check if the current tag type is a single value object type.
+     *
+     * @return true if this a single value object representation.
+     */
     public boolean isValue() {
-        return isPrimitive() || id == Tag.STRING;
+        return (id >= Tag.END && id <= Tag.DOUBLE) || id == Tag.STRING;
     }
 
+    /**
+     * Check if the current tag type is a decimal number type.
+     *
+     * @return true if this a decimal number representation.
+     */
     public boolean isDecimal() {
         return id == Tag.FLOAT || id == Tag.DOUBLE;
     }
 
+    /**
+     * Check if the current tag type is an array type.
+     *
+     * @return true if this an array type representation.
+     */
     public boolean isArray() {
         switch (id) {
             case Tag.BYTE_ARRAY:
@@ -166,28 +245,68 @@ public class TagType<T> {
         }
     }
 
+    /**
+     * Check if the current tag type has a static byte size.
+     *
+     * @return true if the object represented by this tag has static size.
+     */
+    public boolean hasStaticSize() {
+        return id >= Tag.END && id <= Tag.DOUBLE;
+    }
+
+    /**
+     * Get the current tag ID.
+     *
+     * @return a tag ID.
+     */
     public byte getId() {
         return id;
     }
 
+    /**
+     * Get the current tag name, for some types, the name is different from an allowed enum name.
+     *
+     * @return a tag name.
+     */
     @NotNull
     public String getName() {
         return name;
     }
 
+    /**
+     * Get the current pretty name of tag.
+     *
+     * @return a pretty name defined by this tag type.
+     */
     @NotNull
     public String getPrettyName() {
         return prettyName;
     }
 
+    /**
+     * Get the current suffix of tag, this may differ on array types or fake representations.
+     *
+     * @return a suffix defined by this tag type, {@code \0} otherwise.
+     */
     public char getSuffix() {
         return suffix;
     }
 
+    /**
+     * Get the current base or static size of tag.
+     *
+     * @return a size of bytes.
+     */
     public int getSize() {
         return size;
     }
 
+    /**
+     * Get the current size if object represented by this tag.
+     *
+     * @param t an object type.
+     * @return  a size of bytes.
+     */
     public int getSize(T t) {
         return getSize();
     }
@@ -198,14 +317,21 @@ public class TagType<T> {
         if (!(object instanceof TagType)) return false;
 
         final TagType<?> type = (TagType<?>) object;
-        return isValid() ? getId() == type.getId() : getName().equals(type.getName());
+        return getId() == type.getId();
     }
 
     @Override
     public int hashCode() {
-        return isValid() ? getId() : getName().hashCode();
+        return getId();
     }
 
+    /**
+     * Get tag type by ID, the provided type must be a valid ID or invalid tag type will be return.
+     *
+     * @param id  the tag ID.
+     * @return    a tag type defined by ID, invalid tag otherwise.
+     * @param <T> the type of object represented by NBT value.
+     */
     @NotNull
     @SuppressWarnings("unchecked")
     public static <T> TagType<T> getType(byte id) {
@@ -221,6 +347,14 @@ public class TagType<T> {
         }
     }
 
+    /**
+     * Get tag type by associated java object type, the provided object must be an object
+     * that can be represented with NBT value or invalid tag type will be return.
+     *
+     * @param object the object type.
+     * @return       a tag type associated with java object, invalid tag otherwise.
+     * @param <T>    the type of object represented by NBT value.
+     */
     @NotNull
     public static <T> TagType<T> getType(@Nullable Object object) {
         if (object instanceof Class) {
@@ -232,6 +366,14 @@ public class TagType<T> {
         }
     }
 
+    /**
+     * Get tag type by associated class type, the provided class type must be represented
+     * with NBT value or invalid tag type will be return.
+     *
+     * @param type the class type of object.
+     * @return     a tag type associated with class type, invalid tag otherwise.
+     * @param <T>  the type of object represented by NBT value.
+     */
     @NotNull
     @SuppressWarnings("unchecked")
     public static <T> TagType<T> getType(@NotNull Class<?> type) {

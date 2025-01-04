@@ -14,9 +14,22 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+/**
+ * Utility class to colorize tag objects with provided or custom palettes.
+ *
+ * @author Rubenicos
+ */
 public class TagPalette {
 
-    public static final TagPalette COLORS = new TagPalette()
+    /**
+     * Tag palette that provide color names.
+     */
+    public static final TagPalette COLORS = new TagPalette() {
+        @Override
+        public @NotNull <T> String color(@Nullable T object, @Nullable String indent, @NotNull TagMapper<T> mapper) {
+            throw new IllegalStateException("The current tag palette instance is only to provide color names");
+        }
+    }
             .base("white")
             .key("aqua")
             .type("gold")
@@ -27,6 +40,9 @@ public class TagPalette {
             .suffix(TagType.BOOLEAN, "")
             .end("reset");
 
+    /**
+     * Tag palette with default legacy color codes.
+     */
     public static final TagPalette DEFAULT = new TagPalette()
             .base("\u00a7f%s")
             .key("\u00a7b%s")
@@ -37,10 +53,13 @@ public class TagPalette {
             .suffix("\u00a7c%s")
             .suffix(TagType.BOOLEAN, "")
             .end("\u00a7r");
+    /**
+     * Tag palette with raw json color formatting.
+     */
     public static final TagPalette JSON = new TagPalette() {
         @Override
-        public @NotNull <T> String color(@Nullable T value, @Nullable String indent, @NotNull TagMapper<T> mapper) {
-            final String result = super.color(value, indent, mapper);
+        public @NotNull <T> String color(@Nullable T object, @Nullable String indent, @NotNull TagMapper<T> mapper) {
+            final String result = super.color(object, indent, mapper);
             if (result.isBlank()) {
                 return "{}";
             }
@@ -56,6 +75,9 @@ public class TagPalette {
             .type(TagType.END, "{\"type\":\"text\",\"color\":\"dark_red\",\"text\":\"%s\"},")
             .suffix("{\"type\":\"text\",\"color\":\"red\",\"text\":\"%s\"},")
             .suffix(TagType.BOOLEAN, "");
+    /**
+     * Tag palette with ANSI console color formatting.
+     */
     public static final TagPalette ANSI = new TagPalette()
             .base("\u001B[0m%s")
             .key("\u001B[96m%s")
@@ -66,6 +88,9 @@ public class TagPalette {
             .suffix("\u001B[91m%s")
             .suffix(TagType.BOOLEAN, "")
             .end("\u001B[0m");
+    /**
+     * Tag palette with MiniMessage color formatting.
+     */
     public static final TagPalette MINI_MESSAGE = new TagPalette()
             .base("<white>%s")
             .key("<aqua>%s")
@@ -92,51 +117,109 @@ public class TagPalette {
 
     private String end = "";
 
+    /**
+     * Constructs a tag palette.
+     */
+    public TagPalette() {
+    }
+
+    /**
+     * Get base color format for {@code {}} and any other part that doesn't have a defined color.
+     *
+     * @return a string to format.
+     */
     @NotNull
     public String base() {
         return base;
     }
 
+    /**
+     * Get color format for {@code []}.
+     *
+     * @return a string to format.
+     */
     @NotNull
     public String bracket() {
         return bracket != null ? bracket : base;
     }
-
+    /**
+     * Get color format for {@code :}.
+     *
+     * @return a string to format.
+     */
     @NotNull
     public String colon() {
         return colon != null ? colon : base;
     }
 
+    /**
+     * Get color format for {@code ,}.
+     *
+     * @return a string to format.
+     */
     @NotNull
     public String comma() {
         return comma != null ? comma : base;
     }
 
+    /**
+     * Get color format for {@code "}.
+     *
+     * @return a string to format.
+     */
     @NotNull
     public String quote() {
         return quote != null ? quote : base;
     }
 
+    /**
+     * Get color format for compound keys.
+     *
+     * @return a string to format.
+     */
     @NotNull
     public String key() {
         return key != null ? key : base;
     }
 
+    /**
+     * Get base color format for provided tag type.
+     *
+     * @param type the type to get format.
+     * @return     a string to format.
+     */
     @NotNull
     public String type(@NotNull TagType<?> type) {
         return types.getOrDefault(type, defaultType);
     }
 
+    /**
+     * Get suffix color format for provided tag.
+     *
+     * @param type the type to get format.
+     * @return     a string to format.
+     */
     @NotNull
     public String suffix(@NotNull TagType<?> type) {
         return suffixes.getOrDefault(type, defaultSuffix);
     }
 
+    /**
+     * Get end string to append.
+     *
+     * @return a string.
+     */
     @NotNull
     public String end() {
         return end;
     }
 
+    /**
+     * Set base color format for {@code {}} and any other part that doesn't have a defined color.
+     *
+     * @param base a string to format.
+     * @return     the current tag palette.
+     */
     @NotNull
     @Contract("_ -> this")
     public TagPalette base(@NotNull String base) {
@@ -144,6 +227,12 @@ public class TagPalette {
         return this;
     }
 
+    /**
+     * Set color format for {@code []}.
+     *
+     * @param bracket a string to format.
+     * @return        the current tag palette.
+     */
     @NotNull
     @Contract("_ -> this")
     public TagPalette bracket(@Nullable String bracket) {
@@ -151,6 +240,12 @@ public class TagPalette {
         return this;
     }
 
+    /**
+     * Set color format for {@code :}.
+     *
+     * @param colon a string to format.
+     * @return      the current tag palette.
+     */
     @NotNull
     @Contract("_ -> this")
     public TagPalette colon(@Nullable String colon) {
@@ -158,6 +253,12 @@ public class TagPalette {
         return this;
     }
 
+    /**
+     * Set color format for {@code ,}.
+     *
+     * @param comma a string to format.
+     * @return      the current tag palette.
+     */
     @NotNull
     @Contract("_ -> this")
     public TagPalette comma(@Nullable String comma) {
@@ -165,6 +266,12 @@ public class TagPalette {
         return this;
     }
 
+    /**
+     * Set color format for {@code "}.
+     *
+     * @param quote a string to format.
+     * @return      the current tag palette.
+     */
     @NotNull
     @Contract("_ -> this")
     public TagPalette quote(@Nullable String quote) {
@@ -172,6 +279,12 @@ public class TagPalette {
         return this;
     }
 
+    /**
+     * Set color format for compound keys.
+     *
+     * @param key a string to format.
+     * @return    the current tag palette.
+     */
     @NotNull
     @Contract("_ -> this")
     public TagPalette key(@Nullable String key) {
@@ -179,6 +292,12 @@ public class TagPalette {
         return this;
     }
 
+    /**
+     * Set default color format for tag types.
+     *
+     * @param defaultType a string to format.
+     * @return            the current tag palette.
+     */
     @NotNull
     @Contract("_ -> this")
     public TagPalette type(@Nullable String defaultType) {
@@ -186,6 +305,13 @@ public class TagPalette {
         return this;
     }
 
+    /**
+     * Set color format for defined tag type.
+     *
+     * @param type  the type to associate with format.
+     * @param color a string to format.
+     * @return      the current tag palette.
+     */
     @NotNull
     @Contract("_, _ -> this")
     public TagPalette type(@NotNull TagType<?> type, @Nullable String color) {
@@ -196,7 +322,12 @@ public class TagPalette {
         }
         return this;
     }
-
+    /**
+     * Set default color format for tag suffixes.
+     *
+     * @param defaultSuffix a string to format.
+     * @return              the current tag palette.
+     */
     @NotNull
     @Contract("_ -> this")
     public TagPalette suffix(@Nullable String defaultSuffix) {
@@ -204,6 +335,13 @@ public class TagPalette {
         return this;
     }
 
+    /**
+     * Set color format for defined tag suffix.
+     *
+     * @param type  the type to associate with format.
+     * @param color a string to format.
+     * @return      the current tag palette.
+     */
     @NotNull
     @Contract("_, _ -> this")
     public TagPalette suffix(@NotNull TagType<?> type, @Nullable String color) {
@@ -215,6 +353,12 @@ public class TagPalette {
         return this;
     }
 
+    /**
+     * Set end string to append.
+     *
+     * @param end a string to format.
+     * @return    the current tag palette.
+     */
     @NotNull
     @Contract("_ -> this")
     public TagPalette end(@Nullable String end) {
@@ -222,6 +366,11 @@ public class TagPalette {
         return this;
     }
 
+    /**
+     * Copy the current tag palette.
+     *
+     * @return a newly generated tag palette.
+     */
     @NotNull
     @Contract("-> new")
     public TagPalette copy() {
@@ -240,16 +389,42 @@ public class TagPalette {
         return palette;
     }
 
+    /**
+     * Color nbt-represented java object with provided indent and {@link TagMapper}.
+     *
+     * @param object the nbt-represented java object to color.
+     * @param indent the indent for new lines.
+     * @return       a colored tag object using the current tag palette.
+     */
     @NotNull
-    public String color(@Nullable Object value, @Nullable String indent) {
-        return color(value, indent, TagMapper.DEFAULT);
+    public String color(@Nullable Object object, @Nullable String indent) {
+        return color(object, indent, TagMapper.DEFAULT);
     }
 
+    /**
+     * Color tag object with provided indent and {@link TagMapper}.
+     *
+     * @param object the tag object to color.
+     * @param indent the indent for new lines.
+     * @param mapper the mapper to extract value from tag.
+     * @return       a colored tag object using the current tag palette.
+     * @param <T>    the tag object implementation.
+     */
     @NotNull
-    public <T> String color(@Nullable T value, @Nullable String indent, @NotNull TagMapper<T> mapper) {
-        return color(value, indent == null ? "" : indent, mapper, 0) + end();
+    public <T> String color(@Nullable T object, @Nullable String indent, @NotNull TagMapper<T> mapper) {
+        return color(object, indent == null ? "" : indent, mapper, 0) + end();
     }
 
+    /**
+     * Color tag object with provided indent and {@link TagMapper}.
+     *
+     * @param object the tag object to color.
+     * @param indent the indent for new lines.
+     * @param mapper the mapper to extract value from tag.
+     * @param count  the current tag depth count.
+     * @return       a colored tag object using the current tag palette.
+     * @param <T>    the tag object implementation.
+     */
     @NotNull
     @SuppressWarnings("unchecked")
     protected <T> String color(@Nullable T object, @NotNull String indent, @NotNull TagMapper<T> mapper, int count) {
@@ -292,6 +467,13 @@ public class TagPalette {
         }
     }
 
+    /**
+     * Color tag array with provided type.
+     *
+     * @param type  the type of array.
+     * @param array the array to color.
+     * @return      a colored array using the current tag palette.
+     */
     @NotNull
     protected String colorArray(@NotNull TagType<?> type, @NotNull Object array) {
         final StringJoiner joiner = new StringJoiner(String.format(comma(), ", "), String.format(bracket() + suffix(type) + comma(), "[", String.valueOf(type.getSuffix()), "; "), String.format(bracket(), "]"));
@@ -309,6 +491,16 @@ public class TagPalette {
         return joiner.toString();
     }
 
+    /**
+     * Color tag list with provided indent and {@link TagMapper}.
+     *
+     * @param list   the list to color.
+     * @param indent the indent for new lines.
+     * @param mapper the mapper to extract value from tag.
+     * @param count  the current tag depth count.
+     * @return       a colored tag list using the current tag palette.
+     * @param <T>    the tag object implementation.
+     */
     @NotNull
     protected <T> String colorList(@NotNull List<T> list, @NotNull String indent, @NotNull TagMapper<T> mapper, int count) {
         if (list.isEmpty()) {
@@ -335,6 +527,16 @@ public class TagPalette {
         return joiner.toString();
     }
 
+    /**
+     * Color tag compound with provided indent and {@link TagMapper}.
+     *
+     * @param map    the compound to color.
+     * @param indent the indent for new lines.
+     * @param mapper the mapper to extract value from tag.
+     * @param count  the current tag depth count.
+     * @return       a colored tag compound using the current tag palette.
+     * @param <T>    the tag object implementation.
+     */
     @NotNull
     protected <T> String colorCompound(@NotNull Map<String, T> map, @NotNull String indent, @NotNull TagMapper<T> mapper, int count) {
         if (map.isEmpty()) {

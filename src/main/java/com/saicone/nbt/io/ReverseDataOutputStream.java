@@ -11,6 +11,13 @@ import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * A reverse data output stream do the same functionality as {@link java.io.DataOutputStream} but writes every
+ * number with its bytes reversed, in other words, using little endian encoding.<br>
+ * Instead of {@link java.io.DataOutputStream}, it uses a simplified method to write Strings as UTF-8 format.
+ *
+ * @author Rubenicos
+ */
 public class ReverseDataOutputStream extends FilterOutputStream implements DataOutput {
 
     private static final VarHandle SHORT = MethodHandles.byteArrayViewVarHandle(short[].class, ByteOrder.LITTLE_ENDIAN);
@@ -21,6 +28,11 @@ public class ReverseDataOutputStream extends FilterOutputStream implements DataO
     private final byte[] intBuffer = new byte[Integer.BYTES];
     private final byte[] longBuffer = new byte[Long.BYTES];
 
+    /**
+     * Constructs a reverse data output stream.
+     *
+     * @param out the delegated output stream to write bytes.
+     */
     public ReverseDataOutputStream(@NotNull OutputStream out) {
         super(out);
     }

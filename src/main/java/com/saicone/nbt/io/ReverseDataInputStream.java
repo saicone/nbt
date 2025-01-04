@@ -12,6 +12,12 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
 
+/**
+ * A reverse data input stream do the same functionality as {@link java.io.DataInputStream} but read every
+ * number with its bytes reversed, in other words, using little endian decoding.
+ *
+ * @author Rubenicos
+ */
 public class ReverseDataInputStream extends FilterInputStream implements DataInput {
 
     private static final VarHandle INT = MethodHandles.byteArrayViewVarHandle(int[].class, ByteOrder.LITTLE_ENDIAN);
@@ -20,6 +26,11 @@ public class ReverseDataInputStream extends FilterInputStream implements DataInp
     private final byte[] intBuffer = new byte[Integer.BYTES];
     private final byte[] longBuffer = new byte[Long.BYTES];
 
+    /**
+     * Constructs a reverse data input stream.
+     *
+     * @param in the delegated input stream to write bytes.
+     */
     public ReverseDataInputStream(@NotNull InputStream in) {
         super(in);
     }

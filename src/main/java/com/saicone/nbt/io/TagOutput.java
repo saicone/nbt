@@ -12,36 +12,81 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * <b>Tag Output</b><br>
+ * A tag output provides methods for converting multiples
+ * data formats from any tag object to a delegated {@link DataOutput}.
+ *
+ * @author Rubenicos
+ *
+ * @param <T> the tag object implementation.
+ */
 public class TagOutput<T> implements Closeable {
 
     private final DataOutput output;
     private final TagMapper<T> mapper;
 
+    /**
+     * Create a tag output that accepts nbt-represented java objects with provided {@link DataOutput}.
+     *
+     * @param output the output to write tag objects.
+     * @return       a newly generate tag output.
+     */
     @NotNull
     public static TagOutput<Object> of(@NotNull DataOutput output) {
         return of(output, TagMapper.DEFAULT);
     }
 
+    /**
+     * Create a tag output with provided {@link DataOutput} and {@link TagMapper}.
+     *
+     * @param output the output to write tag objects.
+     * @param mapper the mapper to extract values from tags.
+     * @return       a newly generate tag output.
+     * @param <T>    the tag object implementation.
+     */
     @NotNull
     public static <T> TagOutput<T> of(@NotNull DataOutput output, @NotNull TagMapper<T> mapper) {
         return new TagOutput<>(output, mapper);
     }
 
+    /**
+     * Constructs a tag output with provided {@link DataOutput} and {@link TagMapper}.
+     *
+     * @param output the output to write tag objects.
+     * @param mapper the mapper to extract values from tags.
+     */
     public TagOutput(@NotNull DataOutput output, @NotNull TagMapper<T> mapper) {
         this.output = output;
         this.mapper = mapper;
     }
 
+    /**
+     * Get delegated data output
+     *
+     * @return a data output that is used to write tag objects.
+     */
     @NotNull
     public DataOutput getOutput() {
         return output;
     }
 
+    /**
+     * Get the mapper that is used to extract values.
+     *
+     * @return a tag mapper.
+     */
     @NotNull
     public TagMapper<T> getMapper() {
         return mapper;
     }
 
+    /**
+     * Write tag object as unnamed tag format.
+     *
+     * @param t the tag object to write.
+     * @throws IOException if any I/O error occurs.
+     */
     public void writeUnnamed(@Nullable T t) throws IOException {
         final Object value = t == null ? null : mapper.extract(t);
         final TagType<Object> type = mapper.type(t);
@@ -54,36 +99,76 @@ public class TagOutput<T> implements Closeable {
         writeTag(type, value);
     }
 
+    /**
+     * Write tag object as any format.<br>
+     * This format is used primarily on network connections.
+     *
+     * @param t the tag object to write.
+     * @throws IOException if any I/O error occurs.
+     */
     public void writeAny(@Nullable T t) throws IOException {
         final Object value = t == null ? null : mapper.extract(t);
         final TagType<Object> type = mapper.type(t);
         output.writeByte(type.getId());
-        if (type == TagType.END) {
-            return;
-        }
         writeTag(type, value);
     }
 
+    /**
+     * Write tag object as bedrock file format.
+     *
+     * @param t the tag object to write.
+     * @throws IOException if any I/O error occurs.
+     */
     public void writeBedrockFile(@Nullable T t) throws IOException {
         writeBedrockFile(mapper.size(t), t);
     }
 
+    /**
+     * Write tag object as bedrock file format with provided header size.
+     *
+     * @param size the byte size of the actual tag.
+     * @param t    the tag object to write.
+     * @throws IOException if any I/O error occurs.
+     */
     public void writeBedrockFile(int size, @Nullable T t) throws IOException {
         writeBedrockFile(Tag.DEFAULT_BEDROCK_VERSION, size, t);
     }
 
+    /**
+     * Write tag object as bedrock file format with provided header version and size.
+     *
+     * @param version the header version of file.
+     * @param size    the byte size of the actual tag.
+     * @param t       the tag object to write.
+     * @throws IOException if any I/O error occurs.
+     */
     public void writeBedrockFile(int version, int size, @Nullable T t) throws IOException {
         output.writeInt(version);
         output.writeInt(size);
         writeAny(t);
     }
 
+    /**
+     * Write tag object value.<br>
+     * This method doesn't perform any tag ID write, it only writes a tag value.
+     *
+     * @param t the tag object to write.
+     * @throws IOException if any I/O error occurs.
+     */
     public void writeTag(@Nullable T t) throws IOException {
         final Object value = t == null ? null : mapper.extract(t);
         final TagType<Object> type = mapper.type(t);
         writeTag(type, value);
     }
 
+    /**
+     * Write tag value with associated tag type.<br>
+     * This method doesn't perform any tag ID write, it only writes a tag value.
+     *
+     * @param type   the tag type that will be written.
+     * @param object the tag value to write.
+     * @throws IOException if any I/O error occurs.
+     */
     @SuppressWarnings("unchecked")
     public void writeTag(@NotNull TagType<?> type, @Nullable Object object) throws IOException {
         if (type == TagType.END || object == null) {
@@ -139,11 +224,23 @@ public class TagOutput<T> implements Closeable {
         }
     }
 
+    /**
+     * Write byte array tag value.
+     *
+     * @param bytes the tag value to write.
+     * @throws IOException if any I/O error occurs.
+     */
     protected void writeByteArray(byte[] bytes) throws IOException {
         output.writeInt(bytes.length);
         output.write(bytes);
     }
 
+    /**
+     * Write int array tag value.
+     *
+     * @param ints the tag value to write.
+     * @throws IOException if any I/O error occurs.
+     */
     protected void writeIntArray(int[] ints) throws IOException {
         output.writeInt(ints.length);
         for (int i : ints) {
@@ -151,6 +248,12 @@ public class TagOutput<T> implements Closeable {
         }
     }
 
+    /**
+     * Write long array tag value.
+     *
+     * @param longs the tag value to write.
+     * @throws IOException if any I/O error occurs.
+     */
     protected void writeLongArray(long[] longs) throws IOException {
         output.writeInt(longs.length);
         for (long l : longs) {
@@ -158,6 +261,12 @@ public class TagOutput<T> implements Closeable {
         }
     }
 
+    /**
+     * Write list of tag objects value from list tag type.
+     *
+     * @param list the tag value to write.
+     * @throws IOException if any I/O error occurs.
+     */
     protected void writeList(@NotNull List<T> list) throws IOException {
         final TagType<Object> type;
         if (list.isEmpty()) {
@@ -174,6 +283,12 @@ public class TagOutput<T> implements Closeable {
         }
     }
 
+    /**
+     * Write map of string-tag entries value from compound tag type.
+     *
+     * @param map the tag value to write.
+     * @throws IOException if any I/O exception occurs.
+     */
     protected void writeCompound(@NotNull Map<String, T> map) throws IOException {
         for (Map.Entry<String, T> entry : map.entrySet()) {
             final Object value = entry.getValue() == null ? null : mapper.extract(entry.getValue());

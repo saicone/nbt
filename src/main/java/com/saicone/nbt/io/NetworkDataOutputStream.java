@@ -6,6 +6,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * A network data input stream do the same functionality as {@link ReverseDataOutputStream} but writes
+ * integers as VarInt32, longs as VerInt64 and String size as unsigned VarInt32.<br>
+ * This interface aims to be same as Minecraft Bedrock network data encoding.
+ *
+ * @author Rubenicos
+ */
 public class NetworkDataOutputStream extends ReverseDataOutputStream {
 
     private static final int SHIFT_32 = Integer.SIZE - 1;
@@ -15,10 +22,21 @@ public class NetworkDataOutputStream extends ReverseDataOutputStream {
     private static final int CON_32 = 0x80;
     private static final long CON_64 = 0x80L;
 
+    /**
+     * Constructs a network data output stream.
+     *
+     * @param out the delegated output stream to write bytes.
+     */
     public NetworkDataOutputStream(@NotNull OutputStream out) {
         super(out);
     }
 
+    /**
+     * Write an integer as VarInt32 using Andrew Steinborn blended method with a little optimization.
+     *
+     * @param v the integer to write.
+     * @throws IOException if any I/O error occurs.
+     */
     public void writeUnsignedVarInt32(int v) throws IOException {
         // Taken from https://steinborn.me/posts/performance/how-fast-can-you-write-a-varint/
         if ((v >>> 7) == 0) {
@@ -44,6 +62,12 @@ public class NetworkDataOutputStream extends ReverseDataOutputStream {
         }
     }
 
+    /**
+     * Write an long as VarInt64 using Andrew Steinborn blended method extended for long values with a little optimization.
+     *
+     * @param v the long to write.
+     * @throws IOException if any I/O error occurs.
+     */
     public void writeUnsignedVarInt64(long v) throws IOException {
         // Taken & extended from https://steinborn.me/posts/performance/how-fast-can-you-write-a-varint/
         if ((v >>> 7) == 0) {

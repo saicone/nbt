@@ -14,16 +14,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Utility class to read/write tags from/as simplified configuration format.
+ *
+ * @author Rubenicos
+ */
 public class TagConfig {
 
     private static final Set<Character> NUMBER_SUFFIX = Set.of('b', 'B', 's', 'S', 'l', 'L', 'f', 'F', 'd', 'D');
 
+    TagConfig() {
+    }
+
+    /**
+     * Convert nbt-represented java object into config value.
+     *
+     * @param object the object to convert.
+     * @return       a simplified configuration value that represent the object.
+     */
     @Nullable
     @Contract("!null -> !null")
     public static Object toConfigValue(@Nullable Object object) {
         return toConfigValue(object, TagMapper.DEFAULT);
     }
 
+    /**
+     * Convert tag object into config value with provided {@link TagMapper}.
+     *
+     * @param object the tag object to convert.
+     * @param mapper the mapper to extract value from tag.
+     * @return       a simplified configuration value that represent the tag object.
+     * @param <T>    the tag object implementation.
+     */
     @Nullable
     @Contract("!null, _ -> !null")
     @SuppressWarnings("unchecked")
@@ -76,11 +98,27 @@ public class TagConfig {
         }
     }
 
+    /**
+     * Convert simplified configuration value into nbt-represented java object.
+     *
+     * @param value  the config value to convert.
+     * @return       a nbt-represented java object converted from config value.
+     * @param <A>    the implementation of java object.
+     */
     @Nullable
     public static <A> A fromConfigValue(@Nullable Object value) {
         return fromConfigValue(value, TagMapper.DEFAULT);
     }
 
+    /**
+     * Convert simplified configuration value into tag object with provided {@link TagMapper}.
+     *
+     * @param value  the config value to convert.
+     * @param mapper the mapper to create tag object by providing a value.
+     * @return       a tag object converted from config value.
+     * @param <T>    the tag object implementation.
+     * @param <A>    the implementation of tag object.
+     */
     @Nullable
     @SuppressWarnings("unchecked")
     public static <T, A extends T> A fromConfigValue(@Nullable Object value, @NotNull TagMapper<T> mapper) {

@@ -17,13 +17,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility class to read/write tags from/as json format.
+ *
+ * @author Rubenicos
+ */
 public class TagJson {
 
+    TagJson() {
+    }
+
+    /**
+     * Convert nbt-represented java object into {@link JsonElement}.
+     *
+     * @param object the object to convert.
+     * @return       a {@link JsonElement} that nearly represent the provided object.
+     */
     @NotNull
     public static JsonElement toJson(@Nullable Object object) {
         return toJson(object, TagMapper.DEFAULT);
     }
 
+    /**
+     * Convert tag object into {@link JsonElement} with provided {@link TagMapper}.
+     *
+     * @param object the tag object to convert.
+     * @param mapper the mapper to extract value from tag.
+     * @return       a {@link JsonElement} that nearly represent the provided tag.
+     * @param <T>    the tag object implementation.
+     */
     @NotNull
     @SuppressWarnings("unchecked")
     public static <T> JsonElement toJson(@Nullable T object, @NotNull TagMapper<T> mapper) {
@@ -76,11 +98,27 @@ public class TagJson {
         }
     }
 
+    /**
+     * Convert {@link JsonElement} into nbt-represented java object.
+     *
+     * @param element the {@link JsonElement} to convert.
+     * @return        a nbt-represented java object converted from json.
+     * @param <A>     the implementation of java object.
+     */
     @Nullable
     public static <A> A fromJson(@NotNull JsonElement element) {
         return fromJson(element, TagMapper.DEFAULT);
     }
 
+    /**
+     * Convert {@link JsonElement} into tag object with provided {@link TagMapper}.
+     *
+     * @param element the {@link JsonElement} to convert.
+     * @param mapper  the mapper to create tag object by providing a value.
+     * @return        a tag object nearly converted from json.
+     * @param <T>     the tag object implementation.
+     * @param <A>     the implementation of tag object.
+     */
     @Nullable
     public static <T, A extends T> A fromJson(@NotNull JsonElement element, @NotNull TagMapper<T> mapper) {
         if (element.isJsonNull()) {

@@ -459,3 +459,6 @@ String colored = TagPalette.MINI_MESSAGE.color(map, null);
 // You can also provide an indent, for example a 2-space indent for multi-line formatted string
 String colored = TagPalette.DEFAULT.color(map, "  ");
 ```
+
+> [!NOTE]
+> This implementation is NOT "pretty print", is just a "tag colorization".
