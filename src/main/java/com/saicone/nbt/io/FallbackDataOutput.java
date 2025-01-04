@@ -8,7 +8,7 @@ import java.io.UTFDataFormatException;
 
 /**
  * A delegated-first data output implementation that executes all the methods into delegated {@link DataOutput}.<br>
- * The main difference will be that any {@link UTFDataFormatException} will make the method to be executed again
+ * The main difference is that any {@link UTFDataFormatException} will make the method to be executed again
  * with an empty string instead.
  *
  * @author Rubenicos

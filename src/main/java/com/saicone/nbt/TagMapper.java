@@ -9,7 +9,7 @@ import java.util.List;
  * <b>Tag Mapper</b><br>
  * A tag mapper is a customizable tag abstraction, for example, most NBT implementations
  * use classes like "TagString" or "NbtCompound" referring the kind of value that is handled.<br>
- * With a tag mapper this library can build NBT objects as that custom implementation and extract the values from it.
+ * With a tag mapper this library can build NBT objects as that custom implementation and extract the values from them.
  *
  * @author Rubenicos
  *

@@ -7,9 +7,9 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * A network data input stream do the same functionality as {@link ReverseDataOutputStream} but writes
- * integers as VarInt32, longs as VerInt64 and String size as unsigned VarInt32.<br>
- * This interface aims to be same as Minecraft Bedrock network data encoding.
+ * A network data output stream do the same functionality as {@link ReverseDataOutputStream} but writes
+ * integers as VarInt32, longs as VarInt64 and String size as unsigned VarInt32.<br>
+ * This implementation aims to be same as Minecraft Bedrock network data encoding.
  *
  * @author Rubenicos
  */

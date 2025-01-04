@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * A network data input stream do the same functionality as {@link ReverseDataInputStream} but read every
  * integer as VarInt32 and long as VarInt64.<br>
- * This interface aims to be same as Minecraft Bedrock network data decoding.<br>
+ * This implementation aims to be same as Minecraft Bedrock network data decoding.<br>
  *
  * @author Rubenicos
  */
