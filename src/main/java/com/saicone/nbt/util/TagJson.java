@@ -57,7 +57,7 @@ public class TagJson {
             return new JsonPrimitive((Boolean) value);
         }
         final TagType<?> type = mapper.type(object);
-        switch (type.getId()) {
+        switch (type.id()) {
             case Tag.END:
                 return JsonNull.INSTANCE;
             case Tag.BYTE:
@@ -94,7 +94,7 @@ public class TagJson {
                 }
                 return map;
             default:
-                throw new IllegalArgumentException("Invalid tag type: " + type.getName());
+                throw new IllegalArgumentException("Invalid tag type: " + type.name());
         }
     }
 

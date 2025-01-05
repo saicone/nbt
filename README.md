@@ -83,7 +83,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.saicone.nbt:nbt:1.0'
+    implementation 'com.saicone:nbt:1.0'
 }
 
 jar.dependsOn (shadowJar)
@@ -111,7 +111,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.saicone.nbt:nbt:1.0")
+    implementation("com.saicone:nbt:1.0")
 }
 
 tasks {
@@ -143,7 +143,7 @@ tasks {
 
 <dependencies>
     <dependency>
-        <groupId>com.saicone.nbt</groupId>
+        <groupId>com.saicone</groupId>
         <artifactId>nbt</artifactId>
         <version>1.0</version>
         <scope>compile</scope>
@@ -461,4 +461,4 @@ String colored = TagPalette.DEFAULT.color(map, "  ");
 ```
 
 > [!NOTE]
-> This implementation is NOT "pretty print", is just a "tag colorization".
+> This implementation is NOT "pretty print", it is just a "tag colorization".

@@ -55,8 +55,8 @@ public class TagType<T> {
      */
     public static final TagType<byte[]> BYTE_ARRAY = new TagType<>(Tag.BYTE_ARRAY, "BYTE[]", "TAG_Byte_Array", 'B', 24) {
         @Override
-        public int getSize(byte[] bytes) {
-            return getSize() + Byte.BYTES * bytes.length;
+        public int size(byte[] bytes) {
+            return size() + Byte.BYTES * bytes.length;
         }
     };
     /**
@@ -64,8 +64,8 @@ public class TagType<T> {
      */
     public static final TagType<boolean[]> BOOLEAN_ARRAY = new TagType<>(Tag.BYTE_ARRAY, "BYTE[]", "TAG_Byte_Array", 'B', 24) {
         @Override
-        public int getSize(boolean[] booleans) {
-            return getSize() + Byte.BYTES * booleans.length;
+        public int size(boolean[] booleans) {
+            return size() + Byte.BYTES * booleans.length;
         }
     };
     /**
@@ -73,8 +73,8 @@ public class TagType<T> {
      */
     public static final TagType<String> STRING = new TagType<>(Tag.STRING, "STRING", "TAG_String", 36) {
         @Override
-        public int getSize(String s) {
-            return getSize() + Short.BYTES * s.length();
+        public int size(String s) {
+            return size() + Short.BYTES * s.length();
         }
     };
     /**
@@ -82,12 +82,12 @@ public class TagType<T> {
      */
     public static final TagType<List<Object>> LIST = new TagType<>(Tag.LIST, "LIST", "TAG_List", 37) {
         @Override
-        public int getSize(List<Object> list) {
-            int size = getSize();
+        public int size(List<Object> list) {
+            int size = size();
             size += Integer.BYTES * list.size();
 
             for (Object object : list) {
-                size += TagType.getType(object).getSize(object);
+                size += TagType.getType(object).size(object);
             }
 
             return size;
@@ -98,13 +98,13 @@ public class TagType<T> {
      */
     public static final TagType<Map<String, Object>> COMPOUND = new TagType<>(Tag.COMPOUND, "COMPOUND", "TAG_Compound", 48) {
         @Override
-        public int getSize(Map<String, Object> map) {
-            int size = getSize();
+        public int size(Map<String, Object> map) {
+            int size = size();
 
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 size += Tag.MAP_KEY_SIZE + Short.BYTES * entry.getKey().length();
                 size += Tag.MAP_ENTRY_SIZE + Integer.BYTES;
-                size += TagType.getType(entry.getValue()).getSize(entry.getValue());
+                size += TagType.getType(entry.getValue()).size(entry.getValue());
             }
 
             return size;
@@ -115,8 +115,8 @@ public class TagType<T> {
      */
     public static final TagType<int[]> INT_ARRAY = new TagType<>(Tag.INT_ARRAY, "INT[]", "TAG_Int_Array", 'I', 24) {
         @Override
-        public int getSize(int[] ints) {
-            return getSize() + Integer.BYTES * ints.length;
+        public int size(int[] ints) {
+            return size() + Integer.BYTES * ints.length;
         }
     };
     /**
@@ -124,8 +124,8 @@ public class TagType<T> {
      */
     public static final TagType<long[]> LONG_ARRAY = new TagType<>(Tag.LONG_ARRAY, "LONG[]", "TAG_Long_Array", 'L', 24) {
         @Override
-        public int getSize(long[] longs) {
-            return getSize() + Long.BYTES * longs.length;
+        public int size(long[] longs) {
+            return size() + Long.BYTES * longs.length;
         }
     };
 
@@ -259,7 +259,7 @@ public class TagType<T> {
      *
      * @return a tag ID.
      */
-    public byte getId() {
+    public byte id() {
         return id;
     }
 
@@ -269,7 +269,7 @@ public class TagType<T> {
      * @return a tag name.
      */
     @NotNull
-    public String getName() {
+    public String name() {
         return name;
     }
 
@@ -279,7 +279,7 @@ public class TagType<T> {
      * @return a pretty name defined by this tag type.
      */
     @NotNull
-    public String getPrettyName() {
+    public String prettyName() {
         return prettyName;
     }
 
@@ -288,7 +288,7 @@ public class TagType<T> {
      *
      * @return a suffix defined by this tag type, {@code \0} otherwise.
      */
-    public char getSuffix() {
+    public char suffix() {
         return suffix;
     }
 
@@ -297,7 +297,7 @@ public class TagType<T> {
      *
      * @return a size of bytes.
      */
-    public int getSize() {
+    public int size() {
         return size;
     }
 
@@ -307,8 +307,8 @@ public class TagType<T> {
      * @param t an object type.
      * @return  a size of bytes.
      */
-    public int getSize(T t) {
-        return getSize();
+    public int size(T t) {
+        return size();
     }
 
     @Override
@@ -317,12 +317,12 @@ public class TagType<T> {
         if (!(object instanceof TagType)) return false;
 
         final TagType<?> type = (TagType<?>) object;
-        return getId() == type.getId();
+        return id() == type.id();
     }
 
     @Override
     public int hashCode() {
-        return getId();
+        return id();
     }
 
     /**

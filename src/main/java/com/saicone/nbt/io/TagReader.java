@@ -365,9 +365,9 @@ public class TagReader<T> extends Reader {
 
         if (type != null) {
             if (result == null && !type.isDecimal()) {
-                throw new IOException("Cannot read decimal number '" + unquoted + "' as " + type.getPrettyName());
+                throw new IOException("Cannot read decimal number '" + unquoted + "' as " + type.prettyName());
             }
-            switch (type.getId()) {
+            switch (type.id()) {
                 case Tag.BYTE:
                     return mapper.buildAny(TagType.BYTE, Byte.parseByte(unquoted));
                 case Tag.SHORT:
@@ -517,7 +517,7 @@ public class TagReader<T> extends Reader {
     protected <A extends T> A readArrayTag(int id) throws IOException {
         final TagType<?> type = getArrayType((char) id);
         if (type != null) {
-            switch (type.getId()) {
+            switch (type.id()) {
                 case Tag.BYTE_ARRAY:
                     return readArrayTag(type, true, Byte::parseByte, mapper::byteArray);
                 case Tag.INT_ARRAY:
@@ -547,7 +547,7 @@ public class TagReader<T> extends Reader {
         while (!(unquoted = readUnquoted()).isEmpty()) {
             if (suffix) {
                 final char last = unquoted.charAt(unquoted.length() - 1);
-                if (last == type.getSuffix() || last == Character.toLowerCase(type.getSuffix())) {
+                if (last == type.suffix() || last == Character.toLowerCase(type.suffix())) {
                     unquoted = unquoted.substring(0, unquoted.length() - 1);
                 }
             }

@@ -60,7 +60,7 @@ public class TagConfig {
             return value;
         }
         final TagType<Object> type = mapper.type(object);
-        switch (type.getId()) {
+        switch (type.id()) {
             case Tag.END:
                 return null;
             case Tag.INT:
@@ -94,7 +94,7 @@ public class TagConfig {
                 }
                 return map;
             default:
-                throw new IllegalArgumentException("Invalid tag type: " + type.getName());
+                throw new IllegalArgumentException("Invalid tag type: " + type.name());
         }
     }
 
@@ -129,7 +129,7 @@ public class TagConfig {
         }
 
         final TagType<?> type = TagType.getType(value);
-        switch (type.getId()) {
+        switch (type.id()) {
             case Tag.END:
                 return null;
             case Tag.BYTE:
@@ -163,7 +163,7 @@ public class TagConfig {
                 }
                 return mapper.buildAny(type, map);
             default:
-                throw new IllegalArgumentException("Invalid tag type: " + type.getName());
+                throw new IllegalArgumentException("Invalid tag type: " + type.name());
         }
     }
 

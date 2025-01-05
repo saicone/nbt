@@ -82,7 +82,7 @@ public interface TagMapper<T> {
      * @return  a size of bytes.
      */
     default int size(@Nullable T t) {
-        return TagType.getType(t).getSize(t);
+        return TagType.getType(t).size(t);
     }
 
     /**

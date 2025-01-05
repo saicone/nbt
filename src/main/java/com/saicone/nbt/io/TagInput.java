@@ -247,8 +247,8 @@ public class TagInput<T> implements Closeable {
      * @throws IOException if any I/O error occurs.
      */
     public <A extends T> A readTag(@NotNull TagType<?> type) throws IOException {
-        useBytes(type.getSize());
-        switch (type.getId()) {
+        useBytes(type.size());
+        switch (type.id()) {
             case Tag.END:
                 return null;
             case Tag.BYTE:
@@ -287,7 +287,7 @@ public class TagInput<T> implements Closeable {
             case Tag.LONG_ARRAY:
                 return mapper.buildAny(type, readLongArray());
             default:
-                throw new IllegalArgumentException("Invalid tag type: " + type.getName());
+                throw new IllegalArgumentException("Invalid tag type: " + type.name());
         }
     }
 

@@ -90,7 +90,7 @@ public class TagOutput<T> implements Closeable {
     public void writeUnnamed(@Nullable T t) throws IOException {
         final Object value = t == null ? null : mapper.extract(t);
         final TagType<Object> type = mapper.type(t);
-        output.writeByte(type.getId());
+        output.writeByte(type.id());
         if (type == TagType.END) {
             return;
         }
@@ -109,7 +109,7 @@ public class TagOutput<T> implements Closeable {
     public void writeAny(@Nullable T t) throws IOException {
         final Object value = t == null ? null : mapper.extract(t);
         final TagType<Object> type = mapper.type(t);
-        output.writeByte(type.getId());
+        output.writeByte(type.id());
         writeTag(type, value);
     }
 
@@ -174,7 +174,7 @@ public class TagOutput<T> implements Closeable {
         if (type == TagType.END || object == null) {
             return;
         }
-        switch (type.getId()) {
+        switch (type.id()) {
             case Tag.BYTE:
                 if (object instanceof Boolean) {
                     output.writeByte((Boolean) object ? 1 : 0);
@@ -220,7 +220,7 @@ public class TagOutput<T> implements Closeable {
                 writeLongArray((long[]) object);
                 break;
             default:
-                throw new IllegalArgumentException("Invalid tag type: " + type.getName());
+                throw new IllegalArgumentException("Invalid tag type: " + type.name());
         }
     }
 
@@ -275,7 +275,7 @@ public class TagOutput<T> implements Closeable {
             type = mapper.type(list.get(0));
         }
 
-        output.writeByte(type.getId());
+        output.writeByte(type.id());
         output.writeInt(list.size());
 
         for (T t : list) {
@@ -293,7 +293,7 @@ public class TagOutput<T> implements Closeable {
         for (Map.Entry<String, T> entry : map.entrySet()) {
             final Object value = entry.getValue() == null ? null : mapper.extract(entry.getValue());
             final TagType<Object> type = mapper.type(entry.getValue());
-            output.writeByte(type.getId());
+            output.writeByte(type.id());
             if (type != TagType.END) {
                 output.writeUTF(entry.getKey());
                 writeTag(type, value);

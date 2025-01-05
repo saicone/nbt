@@ -127,9 +127,9 @@ public class TagWriter<T> extends Writer {
         }
         final TagType<Object> type = mapper.type(t);
         if (!type.isValid()) {
-            throw new IOException("Cannot write invalid tag: " + type.getName());
+            throw new IOException("Cannot write invalid tag: " + type.name());
         }
-        switch (type.getId()) {
+        switch (type.id()) {
             case Tag.END:
             case Tag.BYTE:
             case Tag.SHORT:
@@ -162,7 +162,7 @@ public class TagWriter<T> extends Writer {
                 writeCompoundTag((Map<String, T>) value);
                 break;
             default:
-                throw new IllegalArgumentException("Invalid tag type: " + type.getName());
+                throw new IllegalArgumentException("Invalid tag type: " + type.name());
         }
     }
 
@@ -178,7 +178,7 @@ public class TagWriter<T> extends Writer {
         if (type == TagType.DOUBLE || type == TagType.INT) {
             write(String.valueOf(v));
         } else {
-            write(String.valueOf(v) + type.getSuffix());
+            write(String.valueOf(v) + type.suffix());
         }
     }
 
@@ -199,14 +199,14 @@ public class TagWriter<T> extends Writer {
      * @throws IOException if any I/O exception occurs.
      */
     public void writeByteArrayTag(byte[] bytes) throws IOException {
-        write("[" + TagType.BYTE_ARRAY.getSuffix() + ";");
+        write("[" + TagType.BYTE_ARRAY.suffix() + ";");
         boolean delimiter = false;
         for (byte b : bytes) {
             if (delimiter) {
                 write(',');
             }
 
-            write(String.valueOf(b) + TagType.BYTE_ARRAY.getSuffix());
+            write(String.valueOf(b) + TagType.BYTE_ARRAY.suffix());
 
             delimiter = true;
         }
@@ -220,7 +220,7 @@ public class TagWriter<T> extends Writer {
      * @throws IOException if any I/O exception occurs.
      */
     public void writeBooleanArrayTag(boolean[] booleans) throws IOException {
-        write("[" + TagType.BOOLEAN_ARRAY.getSuffix() + ";");
+        write("[" + TagType.BOOLEAN_ARRAY.suffix() + ";");
         boolean delimiter = false;
         for (boolean b : booleans) {
             if (delimiter) {
@@ -241,7 +241,7 @@ public class TagWriter<T> extends Writer {
      * @throws IOException if any I/O exception occurs.
      */
     public void writeIntArrayTag(int[] ints) throws IOException {
-        write("[" + TagType.INT_ARRAY.getSuffix() + ";");
+        write("[" + TagType.INT_ARRAY.suffix() + ";");
         boolean delimiter = false;
         for (int i : ints) {
             if (delimiter) {
@@ -262,14 +262,14 @@ public class TagWriter<T> extends Writer {
      * @throws IOException if any I/O exception occurs.
      */
     public void writeLongArrayTag(long[] longs) throws IOException {
-        write("[" + TagType.LONG_ARRAY.getSuffix() + ";");
+        write("[" + TagType.LONG_ARRAY.suffix() + ";");
         boolean delimiter = false;
         for (long l : longs) {
             if (delimiter) {
                 write(',');
             }
 
-            write(String.valueOf(l) + TagType.LONG_ARRAY.getSuffix());
+            write(String.valueOf(l) + TagType.LONG_ARRAY.suffix());
 
             delimiter = true;
         }

@@ -430,11 +430,11 @@ public class TagPalette {
     protected <T> String color(@Nullable T object, @NotNull String indent, @NotNull TagMapper<T> mapper, int count) {
         final TagType<?> type = mapper.type(object);
         if (!type.isValid()) {
-            throw new IllegalArgumentException("Invalid tag type: " + type.getName());
+            throw new IllegalArgumentException("Invalid tag type: " + type.name());
         }
 
         final Object value = mapper.extract(object);
-        switch (type.getId()) {
+        switch (type.id()) {
             case Tag.END:
                 // null
                 return String.format(type(TagType.END), "null");
@@ -447,7 +447,7 @@ public class TagPalette {
             case Tag.FLOAT:
             case Tag.DOUBLE:
                 // <value><suffix>
-                return String.format(type(type) + suffix(type), String.valueOf(value), String.valueOf(type.getSuffix()));
+                return String.format(type(type) + suffix(type), String.valueOf(value), String.valueOf(type.suffix()));
             case Tag.STRING:
                 // "<value>"
                 return String.format(quote() + type(TagType.STRING) + quote(), "\"", value, "\"");
@@ -463,7 +463,7 @@ public class TagPalette {
                 // {<key>: <pretty value>, <key>: <pretty value>, <key>: <pretty value>...}
                 return colorCompound((Map<String, T>) value, indent, mapper, count);
             default:
-                throw new IllegalArgumentException("Invalid tag type: " + type.getName());
+                throw new IllegalArgumentException("Invalid tag type: " + type.name());
         }
     }
 
@@ -476,7 +476,7 @@ public class TagPalette {
      */
     @NotNull
     protected String colorArray(@NotNull TagType<?> type, @NotNull Object array) {
-        final StringJoiner joiner = new StringJoiner(String.format(comma(), ", "), String.format(bracket() + suffix(type) + comma(), "[", String.valueOf(type.getSuffix()), "; "), String.format(bracket(), "]"));
+        final StringJoiner joiner = new StringJoiner(String.format(comma(), ", "), String.format(bracket() + suffix(type) + comma(), "[", String.valueOf(type.suffix()), "; "), String.format(bracket(), "]"));
         final String format;
         if (type == TagType.INT_ARRAY) {
             format = type(type);
@@ -486,7 +486,7 @@ public class TagPalette {
         final int size = Array.getLength(array);
         for (int i = 0; i < size; i++) {
             final Object value = Array.get(array, i);
-            joiner.add(String.format(format, value, String.valueOf(type.getSuffix())));
+            joiner.add(String.format(format, value, String.valueOf(type.suffix())));
         }
         return joiner.toString();
     }
