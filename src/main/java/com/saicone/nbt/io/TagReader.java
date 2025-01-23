@@ -584,8 +584,25 @@ public class TagReader<T> extends Reader {
         }
         final List<T> list = new ArrayList<>();
         T value;
+        boolean heterogenous = false;
         while ((value = readTag()) != null) {
-            list.add(value);
+            if (mapper.type(value).equals(TagType.COMPOUND)) {
+                heterogenous = true;
+                if (!list.isEmpty()) {
+                    for (int i = 0; i < list.size(); i++) {
+                        final Map<String, T> wrapped = new HashMap<>();
+                        wrapped.put("", list.get(i));
+                        list.set(i, mapper.build(TagType.COMPOUND, wrapped));
+                    }
+                }
+                list.add(value);
+            } else if (heterogenous) {
+                final Map<String, T> wrapped = new HashMap<>();
+                wrapped.put("", value);
+                list.add(mapper.build(TagType.COMPOUND, wrapped));
+            } else {
+                list.add(value);
+            }
             if (skip(',')) {
                 skipSpaces();
             } else {
