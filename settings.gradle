@@ -1,1 +1,5 @@
 rootProject.name = 'nbt'
+
+include(
+        ':mapper:mapper-minecraft'
+)

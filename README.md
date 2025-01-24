@@ -70,29 +70,21 @@ Map<String, Object> map = TagConfig.fromConfigValue(config);
 
 How to implement NBT library in your project.
 
+This library contains the following artifacts:
+
+* `nbt` - The main project.
+* `mapper-minecraft` - NBT mapper for Minecraft code with Mojang mappings, can be used for [PaperMC](https://papermc.io/) +1.20.5.
+
 <details>
   <summary>build.gradle</summary>
 
 ```groovy
-plugins {
-    id 'com.gradleup.shadow' version '8.3.5'
-}
-
 repositories {
     maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation 'com.saicone:nbt:1.0'
-}
-
-jar.dependsOn (shadowJar)
-
-shadowJar {
-    // Relocate nbt
-    relocate 'com.saicone.nbt', project.group + '.libs.nbt'
-    // Exclude unused classes (optional)
-    minimize()
+    implementation 'com.saicone.nbt:nbt:1.0'
 }
 ```
 
@@ -102,29 +94,12 @@ shadowJar {
   <summary>build.gradle.kts</summary>
 
 ```kotlin
-plugins {
-    id("com.gradleup.shadow") version "8.3.5"
-}
-
 repositories {
     maven("https://jitpack.io")
 }
 
 dependencies {
-    implementation("com.saicone:nbt:1.0")
-}
-
-tasks {
-    jar {
-        dependsOn(tasks.shadowJar)
-    }
-
-    shadowJar {
-        // Relocate nbt
-        relocate("com.saicone.nbt", "${project.group}.libs.nbt")
-        // Exclude unused classes (optional)
-        minimize()
-    }
+    implementation("com.saicone.nbt:nbt:1.0")
 }
 ```
 
@@ -143,39 +118,12 @@ tasks {
 
 <dependencies>
     <dependency>
-        <groupId>com.saicone</groupId>
+        <groupId>com.saicone.nbt</groupId>
         <artifactId>nbt</artifactId>
         <version>1.0</version>
         <scope>compile</scope>
     </dependency>
 </dependencies>
-
-<build>
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.3.0</version>
-        <configuration>
-            <relocations>
-                <!-- Relocate nbt -->
-                <relocation>
-                    <pattern>com.saicone.nbt</pattern>
-                    <shadedPattern>${project.groupId}.libs.nbt</shadedPattern>
-                </relocation>
-            </relocations>
-            <!-- Exclude unused classes (optional) -->
-            <minimizeJar>true</minimizeJar>
-        </configuration>
-        <executions>
-            <execution>
-                <phase>package</phase>
-                <goals>
-                    <goal>shade</goal>
-                </goals>
-            </execution>
-        </executions>
-    </plugin>
-</build>
 ```
 
 </details>

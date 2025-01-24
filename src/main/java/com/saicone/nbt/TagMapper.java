@@ -3,7 +3,9 @@ package com.saicone.nbt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <b>Tag Mapper</b><br>
@@ -81,8 +83,51 @@ public interface TagMapper<T> {
      * @param t the tag object.
      * @return  a size of bytes.
      */
+    @SuppressWarnings("unchecked")
     default int size(@Nullable T t) {
-        return TagType.getType(t).size(t);
+        final Object value = extract(t);
+        if (value instanceof Map<?,?>) {
+            return size((Map<String, T>) value);
+        } else if (value instanceof List<?>) {
+            return size((List<T>) value);
+        } else {
+            return type(t).size(value);
+        }
+    }
+
+    /**
+     * Get the size of bytes from compound tag value.
+     *
+     * @param map the tag value.
+     * @return    a size of bytes.
+     */
+    default int size(@NotNull Map<String, T> map) {
+        int size = TagType.COMPOUND.size();
+
+        for (Map.Entry<String, T> entry : map.entrySet()) {
+            size += Tag.MAP_KEY_SIZE + Short.BYTES * String.valueOf(entry.getKey()).length();
+            size += Tag.MAP_ENTRY_SIZE + Integer.BYTES;
+            size += size(entry.getValue());
+        }
+
+        return size;
+    }
+
+    /**
+     * Get the size of bytes from list tag value.
+     *
+     * @param list the tag value.
+     * @return     a size of bytes.
+     */
+    default int size(@NotNull List<T> list) {
+        int size = TagType.LIST.size();
+        size += Integer.BYTES * list.size();
+
+        for (T t : list) {
+            size += size(t);
+        }
+
+        return size;
     }
 
     /**
@@ -95,6 +140,37 @@ public interface TagMapper<T> {
     @NotNull
     default <A> TagType<A> type(@Nullable T t) {
         return TagType.getType(t);
+    }
+
+    /**
+     * Get a {@link TagType} that represents the type of tag that is being stored by provided {@link Iterable}.
+     *
+     * @param iterable the object that store tags.
+     * @return         a {@link TagType} that represents the tag that is being stored, {@link TagType#END} otherwise.
+     * @param <A>      the type of java object represented by NBT value.
+     */
+    @NotNull
+    @SuppressWarnings("unchecked")
+    default <A> TagType<A> type(@NotNull Iterable<T> iterable) {
+        final Iterator<T> iterator = iterable.iterator();
+        if (iterator.hasNext()) {
+            return type(iterator.next());
+        } else {
+            return (TagType<A>) TagType.END;
+        }
+    }
+
+    /**
+     * Get a {@link TagType} that represents the type of tag that is being stored by provided list tag.
+     *
+     * @param t   the list tag.
+     * @return    a {@link TagType} that represents the tag that is being stored, {@link TagType#END} otherwise.
+     * @param <A> the type of java object represented by NBT value.
+     */
+    @NotNull
+    @SuppressWarnings("unchecked")
+    default <A> TagType<A> listType(@NotNull T t) {
+        return type((Iterable<T>) extract(t));
     }
 
     /**
