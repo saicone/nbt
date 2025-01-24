@@ -590,9 +590,12 @@ public class TagReader<T> extends Reader {
                 heterogenous = true;
                 if (!list.isEmpty()) {
                     for (int i = 0; i < list.size(); i++) {
-                        final Map<String, T> wrapped = new HashMap<>();
-                        wrapped.put("", list.get(i));
-                        list.set(i, mapper.build(TagType.COMPOUND, wrapped));
+                        final T element = list.get(i);
+                        if (!mapper.type(element).equals(TagType.COMPOUND)) {
+                            final Map<String, T> wrapped = new HashMap<>();
+                            wrapped.put("", element);
+                            list.set(i, mapper.build(TagType.COMPOUND, wrapped));
+                        }
                     }
                 }
                 list.add(value);
