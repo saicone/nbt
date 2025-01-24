@@ -75,6 +75,7 @@ This library contains the following artifacts:
 * `nbt` - The main project.
 * `mapper-adventure` - NBT mapper for [adventure nbt](https://github.com/KyoriPowered/adventure) objects, can be used for [Velocity](https://github.com/PaperMC/Velocity).
 * `mapper-bukkit` - NBT mapper for bukkit-based projects ([SpigotMC](https://www.spigotmc.org/), [PaperMC](https://papermc.io/)... etc).
+* `mapper-jo-nbt` - NBT mapper for [jo-nbt](https://github.com/llbit/jo-nbt) objects, can be used for [Bungeecord](https://github.com/SpigotMC/BungeeCord).
 * `mapper-minecraft` - NBT mapper for Minecraft code with Mojang mappings, can be used for [PaperMC](https://papermc.io/) +1.20.5.
 
 <details>

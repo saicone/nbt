@@ -1,0 +1,9 @@
+dependencies {
+    compileOnly 'se.llbit:jo-nbt:1.3.0'
+}
+
+javadoc {
+    options {
+        links 'https://javadoc.io/doc/se.llbit/jo-nbt/latest/'
+    }
+}
