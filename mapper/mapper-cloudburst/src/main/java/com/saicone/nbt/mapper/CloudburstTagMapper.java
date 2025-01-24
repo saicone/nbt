@@ -28,7 +28,7 @@ public class CloudburstTagMapper implements TagMapper<Object> {
     @SuppressWarnings("unchecked")
     public Object build(@NotNull TagType<?> type, @Nullable Object object) {
         if (type == TagType.LIST) {
-            return new NbtList<>(NbtType.byId(type((Iterable<Object>) object).id()), (Collection<?>) object);
+            return new NbtList(NbtType.byId(type((Iterable<Object>) object).id()), (Collection<?>) object);
         } else if (type == TagType.COMPOUND) {
             return NbtMap.fromMap((Map<String, Object>) object);
         } else {

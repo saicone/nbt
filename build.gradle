@@ -88,7 +88,8 @@ def javadocProjects= [
         ':mapper:mapper-bukkit',
         ':mapper:mapper-cloudburst',
         ':mapper:mapper-jo-nbt',
-        ':mapper:mapper-minecraft'
+        ':mapper:mapper-minecraft',
+        ':mapper:mapper-nukkit'
 ]
 
 tasks.register('allJavadoc', Javadoc) {

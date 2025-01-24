@@ -1,0 +1,7 @@
+repositories {
+    maven { url 'https://repo.opencollab.dev/main/' }
+}
+
+dependencies {
+    compileOnly('cn.nukkit:nukkit:1.0-SNAPSHOT') { transitive = false }
+}
