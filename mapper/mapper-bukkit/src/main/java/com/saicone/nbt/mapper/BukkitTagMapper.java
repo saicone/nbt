@@ -39,14 +39,14 @@ public class BukkitTagMapper implements TagMapper<Object> {
     // This class was written into the most descriptive way possible,
     // there are better and shorter ways to create a static final MethodHandle,
     // but I didn't take advantage of that to make anyone able to read this
-    // mapper implementation as a simple and repeated code.
+    // mapper implementation as a simple and repetitive code.
 
     // Initial NBT format
     private static final int OLDER = -1;
     // Added LongArrayTag
     private static final int V_1_12 = 1139;
     private static final int V_1_13 = 1519;
-    private static final int V_1_14_4 = 1952;
+    private static final int V_1_14_4 = 1976;
     // Added cached objects to reduce memory usage
     private static final int V_1_15 = 2225;
     // Introduce mojang mappings
