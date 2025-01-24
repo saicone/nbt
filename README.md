@@ -73,6 +73,7 @@ How to implement NBT library in your project.
 This library contains the following artifacts:
 
 * `nbt` - The main project.
+* `mapper-bukkit` - NBT mapper for bukkit-based projects ([SpigotMC](https://www.spigotmc.org/), [PaperMC](https://papermc.io/)... etc).
 * `mapper-minecraft` - NBT mapper for Minecraft code with Mojang mappings, can be used for [PaperMC](https://papermc.io/) +1.20.5.
 
 <details>

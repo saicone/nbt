@@ -84,6 +84,7 @@ jmh {
 
 def javadocProjects= [
         ':',
+        ':mapper:mapper-bukkit',
         ':mapper:mapper-minecraft'
 ]
 
