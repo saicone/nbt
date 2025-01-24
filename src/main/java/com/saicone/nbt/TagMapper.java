@@ -86,13 +86,30 @@ public interface TagMapper<T> {
     @SuppressWarnings("unchecked")
     default int size(@Nullable T t) {
         final Object value = extract(t);
-        if (value instanceof Map<?,?>) {
-            return size((Map<String, T>) value);
-        } else if (value instanceof List<?>) {
+        if (value instanceof List<?>) {
             return size((List<T>) value);
+        } else if (value instanceof Map<?,?>) {
+            return size((Map<String, T>) value);
         } else {
             return type(t).size(value);
         }
+    }
+
+    /**
+     * Get the size of bytes from list tag value.
+     *
+     * @param list the tag value.
+     * @return     a size of bytes.
+     */
+    default int size(@NotNull List<T> list) {
+        int size = TagType.LIST.size();
+        size += Integer.BYTES * list.size();
+
+        for (T t : list) {
+            size += size(t);
+        }
+
+        return size;
     }
 
     /**
@@ -108,23 +125,6 @@ public interface TagMapper<T> {
             size += Tag.MAP_KEY_SIZE + Short.BYTES * String.valueOf(entry.getKey()).length();
             size += Tag.MAP_ENTRY_SIZE + Integer.BYTES;
             size += size(entry.getValue());
-        }
-
-        return size;
-    }
-
-    /**
-     * Get the size of bytes from list tag value.
-     *
-     * @param list the tag value.
-     * @return     a size of bytes.
-     */
-    default int size(@NotNull List<T> list) {
-        int size = TagType.LIST.size();
-        size += Integer.BYTES * list.size();
-
-        for (T t : list) {
-            size += size(t);
         }
 
         return size;

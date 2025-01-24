@@ -86,6 +86,7 @@ def javadocProjects= [
         ':',
         ':mapper:mapper-adventure',
         ':mapper:mapper-bukkit',
+        ':mapper:mapper-cloudburst',
         ':mapper:mapper-jo-nbt',
         ':mapper:mapper-minecraft'
 ]
