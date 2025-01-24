@@ -84,6 +84,7 @@ jmh {
 
 def javadocProjects= [
         ':',
+        ':mapper:mapper-adventure',
         ':mapper:mapper-bukkit',
         ':mapper:mapper-minecraft'
 ]
@@ -95,6 +96,9 @@ tasks.register('allJavadoc', Javadoc) {
         links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
         links 'https://javadoc.io/doc/org.jetbrains/annotations/latest/'
         links 'https://javadoc.io/doc/com.google.code.gson/gson/latest/'
+
+        // Adventure mapper
+        links 'https://javadoc.io/doc/net.kyori/adventure-nbt/latest/'
     }
     destinationDir = file(project.layout.buildDirectory.dir('docs/all-javadoc'))
 }

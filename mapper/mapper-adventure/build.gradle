@@ -1,0 +1,9 @@
+dependencies {
+    compileOnly 'net.kyori:adventure-nbt:4.17.0'
+}
+
+javadoc {
+    options {
+        links 'https://javadoc.io/doc/net.kyori/adventure-nbt/latest/'
+    }
+}

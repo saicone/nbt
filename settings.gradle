@@ -1,6 +1,7 @@
 rootProject.name = 'nbt'
 
 include(
+        ':mapper:mapper-adventure',
         ':mapper:mapper-bukkit',
         ':mapper:mapper-minecraft'
 )
