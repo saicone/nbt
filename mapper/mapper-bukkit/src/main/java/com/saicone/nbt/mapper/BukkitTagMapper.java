@@ -540,7 +540,7 @@ public class BukkitTagMapper implements TagMapper<Object> {
                     case Tag.STRING:
                         return NEW_STRING.invoke(object);
                     case Tag.LIST:
-                        return NEW_LIST.invoke(object, type((Iterable<Object>) object).id());
+                        return NEW_LIST.invoke(object, typeId((Iterable<Object>) object));
                     case Tag.COMPOUND:
                         return NEW_COMPOUND.invoke(object);
                     case Tag.INT_ARRAY:
@@ -596,7 +596,7 @@ public class BukkitTagMapper implements TagMapper<Object> {
                         final Object list = NEW_LIST.invoke();
                         final List<Object> value = (List<Object>) GET_LIST.invoke(list);
                         value.addAll((Collection<Object>) object);
-                        SET_LIST_TYPE.invoke(list, type((Iterable<Object>) object).id());
+                        SET_LIST_TYPE.invoke(list, typeId((Iterable<Object>) object));
                         return list;
                     case Tag.COMPOUND:
                         final Object compound = NEW_COMPOUND.invoke();
@@ -672,8 +672,16 @@ public class BukkitTagMapper implements TagMapper<Object> {
 
     @Override
     public @NotNull <A> TagType<A> type(@Nullable Object object) {
+        return TagType.getType(typeId(object));
+    }
+
+    @Override
+    public byte typeId(@Nullable Object object) {
+        if (object == null) {
+            return Tag.END;
+        }
         try {
-            return TagType.getType((byte) TAG_ID.invoke(object));
+            return (byte) TAG_ID.invoke(object);
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
@@ -681,8 +689,13 @@ public class BukkitTagMapper implements TagMapper<Object> {
 
     @Override
     public @NotNull <A> TagType<A> listType(@NotNull Object object) {
+        return TagType.getType(listTypeId(object));
+    }
+
+    @Override
+    public byte listTypeId(@NotNull Object object) {
         try {
-            return TagType.getType((byte) GET_LIST_TYPE.invoke(object));
+            return (byte) GET_LIST_TYPE.invoke(object);
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }

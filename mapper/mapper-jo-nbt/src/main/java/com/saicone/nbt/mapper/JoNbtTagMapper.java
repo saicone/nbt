@@ -64,7 +64,7 @@ public class JoNbtTagMapper implements TagMapper<Tag> {
             case Tag.TAG_STRING:
                 return new StringTag((String) object);
             case Tag.TAG_LIST:
-                return new ListTag(type((Iterable<Tag>) object).id(), (List<? extends SpecificTag>) object);
+                return new ListTag(typeId((Iterable<Tag>) object), (List<? extends SpecificTag>) object);
             case Tag.TAG_COMPOUND:
                 final Map<String, SpecificTag> map = (Map<String, SpecificTag>) object;
                 final CompoundTag compound = new CompoundTag();
@@ -160,12 +160,20 @@ public class JoNbtTagMapper implements TagMapper<Tag> {
 
     @Override
     public @NotNull <A> TagType<A> type(@Nullable Tag tag) {
+        return TagType.getType(typeId(tag));
+    }
+
+    @Override
+    public byte typeId(@Nullable Tag tag) {
+        if (tag == null) {
+            return com.saicone.nbt.Tag.END;
+        }
         if (tag instanceof SpecificTag) {
             final SpecificTag specific = (SpecificTag) tag;
-            return TagType.getType(specific.tagType());
+            return (byte) specific.tagType();
         } else if (tag instanceof NamedTag) {
             final NamedTag named = (NamedTag) tag;
-            return TagType.getType(named.getTag().tagType());
+            return (byte) named.getTag().tagType();
         } else {
             throw new IllegalArgumentException("Invalid tag type: " + tag);
         }
@@ -173,6 +181,11 @@ public class JoNbtTagMapper implements TagMapper<Tag> {
 
     @Override
     public @NotNull <A> TagType<A> listType(@NotNull Tag tag) {
-        return TagType.getType(((ListTag) tag).getType());
+        return TagType.getType(listTypeId(tag));
+    }
+
+    @Override
+    public byte listTypeId(@NotNull Tag tag) {
+        return (byte) ((ListTag) tag).getType();
     }
 }

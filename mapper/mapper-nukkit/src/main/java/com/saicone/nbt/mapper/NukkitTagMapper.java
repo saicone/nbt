@@ -91,7 +91,7 @@ public class NukkitTagMapper implements TagMapper<Tag> {
             case Tag.TAG_List:
                 final ListTag<Tag> list = new ListTag<>();
                 list.setAll((List<Tag>) object);
-                list.type = type((Iterable<Tag>) object).id();
+                list.type = typeId((Iterable<Tag>) object);
                 return list;
             case Tag.TAG_Compound:
                 final CompoundTag tag = new CompoundTag();
@@ -151,11 +151,24 @@ public class NukkitTagMapper implements TagMapper<Tag> {
 
     @Override
     public @NotNull <A> TagType<A> type(@Nullable Tag tag) {
-        return tag == null ? TagType.getType(Tag.TAG_End) : TagType.getType(tag.getId());
+        return TagType.getType(typeId(tag));
+    }
+
+    @Override
+    public byte typeId(@Nullable Tag tag) {
+        if (tag == null) {
+            return com.saicone.nbt.Tag.END;
+        }
+        return tag.getId();
     }
 
     @Override
     public @NotNull <A> TagType<A> listType(@NotNull Tag tag) {
-        return TagType.getType(((ListTag<?>) tag).type);
+        return TagType.getType(listTypeId(tag));
+    }
+
+    @Override
+    public byte listTypeId(@NotNull Tag tag) {
+        return ((ListTag<?>) tag).type;
     }
 }

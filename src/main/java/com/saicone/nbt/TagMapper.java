@@ -161,6 +161,31 @@ public interface TagMapper<T> {
     }
 
     /**
+     * Get the type id of tag object implementation.
+     *
+     * @param t the tag object.
+     * @return  the type id of tag.
+     */
+    default byte typeId(@Nullable T t) {
+        return type(t).id();
+    }
+
+    /**
+     * Get the type id of tag that is being stored by provided {@link Iterable}.
+     *
+     * @param iterable the object that store tags.
+     * @return         the type id of tag that is being stored, {@code 0} otherwise.
+     */
+    default byte typeId(@NotNull Iterable<T> iterable) {
+        final Iterator<T> iterator = iterable.iterator();
+        if (iterator.hasNext()) {
+            return typeId(iterator.next());
+        } else {
+            return Tag.END;
+        }
+    }
+
+    /**
      * Get a {@link TagType} that represents the type of tag that is being stored by provided list tag.
      *
      * @param t   the list tag.
@@ -171,6 +196,16 @@ public interface TagMapper<T> {
     @SuppressWarnings("unchecked")
     default <A> TagType<A> listType(@NotNull T t) {
         return type((Iterable<T>) extract(t));
+    }
+
+    /**
+     * Get the type id of tag that is being stored by provided list tag.
+     *
+     * @param t the list tag.
+     * @return  the type id of tag that is being stored, {@code 0} otherwise.
+     */
+    default byte listTypeId(@NotNull T t) {
+        return listType(t).id();
     }
 
     /**

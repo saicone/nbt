@@ -87,7 +87,7 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
             case Tag.TAG_STRING:
                 return StringTag.valueOf((String) object);
             case Tag.TAG_LIST:
-                return new ListTag((List<Tag>) object, type((Iterable<Tag>) object).id());
+                return new ListTag((List<Tag>) object, typeId((Iterable<Tag>) object));
             case Tag.TAG_COMPOUND:
                 final CompoundTag tag = new CompoundTag();
                 for (Map.Entry<String, Tag> entry : ((Map<String, Tag>) object).entrySet()) {
@@ -159,7 +159,20 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
     }
 
     @Override
+    public byte typeId(@Nullable Tag tag) {
+        if (tag == null) {
+            return com.saicone.nbt.Tag.END;
+        }
+        return tag.getId();
+    }
+
+    @Override
     public @NotNull <A> TagType<A> listType(@NotNull Tag tag) {
-        return TagType.getType(((ListTag) tag).getElementType());
+        return TagType.getType(listTypeId(tag));
+    }
+
+    @Override
+    public byte listTypeId(@NotNull Tag tag) {
+        return ((ListTag) tag).getElementType();
     }
 }
