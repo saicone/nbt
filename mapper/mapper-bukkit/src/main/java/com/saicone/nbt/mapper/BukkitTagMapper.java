@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.function.Function;
  *
  * @author Rubenicos
  */
+@SuppressWarnings("fallthrough")
 public class BukkitTagMapper implements TagMapper<Object> {
 
     /**
@@ -126,14 +128,15 @@ public class BukkitTagMapper implements TagMapper<Object> {
                 feature = Integer.parseInt(split[1]);
                 minor = split.length > 2 ? Integer.parseInt(split[2].split("[-_]")[0]) : 0;
             }
-            if (feature >= 19) {
-                if (minor == 3) {
-                    version = V_1_19_3;
-                } else {
-                    version = V_1_18;
-                }
+            if (feature > 19) {
+                version = V_1_19_3;
             } else {
                 switch (feature) {
+                    case 19:
+                        if (minor == 3) {
+                            version = V_1_19_3;
+                            break;
+                        }
                     case 18:
                         version = V_1_18;
                         break;
@@ -167,7 +170,7 @@ public class BukkitTagMapper implements TagMapper<Object> {
             final String packageVersion = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
             mapper = name ->
                     "net.minecraft.server." +
-                            packageVersion +
+                            packageVersion + "." +
                             (name.contains(".") ? name.substring(name.lastIndexOf('.') + 1) : name);
         }
 
@@ -177,8 +180,12 @@ public class BukkitTagMapper implements TagMapper<Object> {
             isMojangMapped = true;
         } catch (ClassNotFoundException e) {
             mapper = mapper.compose(name -> {
-                final String key = name.contains(".") ? name.substring(name.lastIndexOf('.') + 1) : name;
-                return MPC_MAPPINGS.getOrDefault(key, key);
+                if (name.contains(".")) {
+                    final int index = name.lastIndexOf('.') + 1;
+                    final String key = name.substring(index);
+                    return name.substring(0, index) + MPC_MAPPINGS.getOrDefault(key, key);
+                }
+                return MPC_MAPPINGS.getOrDefault(name, name);
             });
         }
 
@@ -210,9 +217,12 @@ public class BukkitTagMapper implements TagMapper<Object> {
             ListTag = Class.forName(mapper.apply("nbt.ListTag"));
             CompoundTag = Class.forName(mapper.apply("nbt.CompoundTag"));
             IntArrayTag = Class.forName(mapper.apply("nbt.IntArrayTag"));
-            // fail silently
-            LongArrayTag = Class.forName(mapper.apply("nbt.LongArrayTag"));
-        } catch (ClassNotFoundException ignored) { }
+            if (version >= V_1_12) {
+                LongArrayTag = Class.forName(mapper.apply("nbt.LongArrayTag"));
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
         MethodHandle tag$id = null;
         MethodHandle tag$size = null;
@@ -262,6 +272,11 @@ public class BukkitTagMapper implements TagMapper<Object> {
             }
 
             if (isMojangMapped && version >= V_1_15) {
+                final Constructor<?> constructor$List = ListTag.getDeclaredConstructor(List.class, byte.class);
+                final Constructor<?> constructor$Compound = CompoundTag.getDeclaredConstructor(Map.class);
+                constructor$List.setAccessible(true);
+                constructor$Compound.setAccessible(true);
+
                 new$EndTag = lookup.findStaticGetter(EndTag, "INSTANCE", EndTag);
                 new$ByteTag = lookup.findStatic(ByteTag, "valueOf", MethodType.methodType(ByteTag, byte.class));
                 new$Boolean = lookup.findStatic(ByteTag, "valueOf", MethodType.methodType(ByteTag, boolean.class));
@@ -270,13 +285,18 @@ public class BukkitTagMapper implements TagMapper<Object> {
                 new$LongTag = lookup.findStatic(LongTag, "valueOf", MethodType.methodType(LongTag, long.class));
                 new$FloatTag = lookup.findStatic(FloatTag, "valueOf", MethodType.methodType(FloatTag, float.class));
                 new$DoubleTag = lookup.findStatic(DoubleTag, "valueOf", MethodType.methodType(DoubleTag, double.class));
-                new$ByteArrayTag = lookup.findConstructor(ByteArrayTag, MethodType.methodType(byte[].class));
+                new$ByteArrayTag = lookup.findConstructor(ByteArrayTag, MethodType.methodType(void.class, byte[].class));
                 new$StringTag = lookup.findStatic(StringTag, "valueOf", MethodType.methodType(StringTag, String.class));
-                new$ListTag = lookup.findConstructor(ListTag, MethodType.methodType(void.class, List.class, byte.class));
-                new$CompoundTag = lookup.findConstructor(CompoundTag, MethodType.methodType(void.class, Map.class));
-                new$IntArrayTag = lookup.findConstructor(IntArrayTag, MethodType.methodType(int[].class));
-                new$LongArrayTag = lookup.findConstructor(LongArrayTag, MethodType.methodType(long[].class));
+                new$ListTag = lookup.unreflectConstructor(constructor$List);
+                new$CompoundTag = lookup.unreflectConstructor(constructor$Compound);
+                new$IntArrayTag = lookup.findConstructor(IntArrayTag, MethodType.methodType(void.class, int[].class));
+                new$LongArrayTag = lookup.findConstructor(LongArrayTag, MethodType.methodType(void.class, long[].class));
             } else if (version >= V_1_15) {
+                final Constructor<?> constructor$List = ListTag.getDeclaredConstructor(List.class, byte.class);
+                final Constructor<?> constructor$Compound = CompoundTag.getDeclaredConstructor(Map.class);
+                constructor$List.setAccessible(true);
+                constructor$Compound.setAccessible(true);
+
                 new$EndTag = lookup.findStaticGetter(EndTag, "b", EndTag);
                 new$ByteTag = lookup.findStatic(ByteTag, "a", MethodType.methodType(ByteTag, byte.class));
                 new$Boolean = lookup.findStatic(ByteTag, "a", MethodType.methodType(ByteTag, boolean.class));
@@ -285,27 +305,30 @@ public class BukkitTagMapper implements TagMapper<Object> {
                 new$LongTag = lookup.findStatic(LongTag, "a", MethodType.methodType(LongTag, long.class));
                 new$FloatTag = lookup.findStatic(FloatTag, "a", MethodType.methodType(FloatTag, float.class));
                 new$DoubleTag = lookup.findStatic(DoubleTag, "a", MethodType.methodType(DoubleTag, double.class));
-                new$ByteArrayTag = lookup.findConstructor(ByteArrayTag, MethodType.methodType(byte[].class));
+                new$ByteArrayTag = lookup.findConstructor(ByteArrayTag, MethodType.methodType(void.class, byte[].class));
                 new$StringTag = lookup.findStatic(StringTag, "a", MethodType.methodType(StringTag, String.class));
-                new$ListTag = lookup.findConstructor(ListTag, MethodType.methodType(void.class, List.class, byte.class));
-                new$CompoundTag = lookup.findConstructor(CompoundTag, MethodType.methodType(void.class, Map.class));
-                new$IntArrayTag = lookup.findConstructor(IntArrayTag, MethodType.methodType(int[].class));
-                new$LongArrayTag = lookup.findConstructor(LongArrayTag, MethodType.methodType(long[].class));
+                new$ListTag = lookup.unreflectConstructor(constructor$List);
+                new$CompoundTag = lookup.unreflectConstructor(constructor$Compound);
+                new$IntArrayTag = lookup.findConstructor(IntArrayTag, MethodType.methodType(void.class, int[].class));
+                new$LongArrayTag = lookup.findConstructor(LongArrayTag, MethodType.methodType(void.class, long[].class));
             } else {
-                new$EndTag = lookup.findConstructor(EndTag, MethodType.methodType(void.class));
-                new$ByteTag = lookup.findConstructor(ByteTag, MethodType.methodType(byte.class));
-                new$ShortTag = lookup.findConstructor(ShortTag, MethodType.methodType(short.class));
-                new$IntTag = lookup.findConstructor(IntTag, MethodType.methodType(int.class));
-                new$LongTag = lookup.findConstructor(LongTag, MethodType.methodType(long.class));
-                new$FloatTag = lookup.findConstructor(FloatTag, MethodType.methodType(float.class));
-                new$DoubleTag = lookup.findConstructor(DoubleTag, MethodType.methodType(double.class));
-                new$ByteArrayTag = lookup.findConstructor(ByteArrayTag, MethodType.methodType(byte[].class));
-                new$StringTag = lookup.findConstructor(StringTag, MethodType.methodType(String.class));
+                final Constructor<?> constructor$End = EndTag.getDeclaredConstructor();
+                constructor$End.setAccessible(true);
+
+                new$EndTag = lookup.unreflectConstructor(constructor$End);
+                new$ByteTag = lookup.findConstructor(ByteTag, MethodType.methodType(void.class, byte.class));
+                new$ShortTag = lookup.findConstructor(ShortTag, MethodType.methodType(void.class, short.class));
+                new$IntTag = lookup.findConstructor(IntTag, MethodType.methodType(void.class, int.class));
+                new$LongTag = lookup.findConstructor(LongTag, MethodType.methodType(void.class, long.class));
+                new$FloatTag = lookup.findConstructor(FloatTag, MethodType.methodType(void.class, float.class));
+                new$DoubleTag = lookup.findConstructor(DoubleTag, MethodType.methodType(void.class, double.class));
+                new$ByteArrayTag = lookup.findConstructor(ByteArrayTag, MethodType.methodType(void.class, byte[].class));
+                new$StringTag = lookup.findConstructor(StringTag, MethodType.methodType(void.class, String.class));
                 new$ListTag = lookup.findConstructor(ListTag, MethodType.methodType(void.class));
                 new$CompoundTag = lookup.findConstructor(CompoundTag, MethodType.methodType(void.class));
-                new$IntArrayTag = lookup.findConstructor(IntArrayTag, MethodType.methodType(int[].class));
+                new$IntArrayTag = lookup.findConstructor(IntArrayTag, MethodType.methodType(void.class, int[].class));
                 if (version >= V_1_12) {
-                    new$LongArrayTag = lookup.findConstructor(LongArrayTag, MethodType.methodType(long[].class));
+                    new$LongArrayTag = lookup.findConstructor(LongArrayTag, MethodType.methodType(void.class, long[].class));
                 }
             }
 
