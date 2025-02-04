@@ -134,13 +134,13 @@ public class NukkitTagMapper implements TagMapper<Tag> {
                 try {
                     return LIST_VALUE.invoke(tag);
                 } catch (Throwable t) {
-                    throw new RuntimeException(t);
+                    return ((ListTag<?>) tag).getAll();
                 }
             case Tag.TAG_Compound:
                 try {
                     return COMPOUND_VALUE.invoke(tag);
                 } catch (Throwable t) {
-                    throw new RuntimeException(t);
+                    return ((CompoundTag) tag).getTags();
                 }
             case Tag.TAG_Int_Array:
                 return ((IntArrayTag) tag).data;

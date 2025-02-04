@@ -23,6 +23,9 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -130,13 +133,21 @@ public class AdventureTagMapper implements TagMapper<BinaryTag> {
                 try {
                     return LIST_TAGS.invoke(tag);
                 } catch (Throwable t) {
-                    throw new RuntimeException(t);
+                    final List<BinaryTag> list = new ArrayList<>();
+                    for (BinaryTag element : ((ListBinaryTag) tag)) {
+                        list.add(element);
+                    }
+                    return list;
                 }
             case Tag.COMPOUND:
                 try {
                     return COMPOUND_TAGS.invoke(tag);
                 } catch (Throwable t) {
-                    throw new RuntimeException(t);
+                    final Map<String, BinaryTag> map = new HashMap<>();
+                    for (Map.Entry<String, ? extends BinaryTag> entry : ((CompoundBinaryTag) tag)) {
+                        map.put(entry.getKey(), entry.getValue());
+                    }
+                    return map;
                 }
             case Tag.INT_ARRAY:
                 return ((IntArrayBinaryTag) tag).value();

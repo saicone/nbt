@@ -22,6 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -131,13 +133,17 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
                 try {
                     return LIST_VALUE.invoke(tag);
                 } catch (Throwable t) {
-                    throw new RuntimeException(t);
+                    return new ArrayList<>((ListTag) tag);
                 }
             case Tag.TAG_COMPOUND:
                 try {
                     return COMPOUND_VALUE.invoke(tag);
                 } catch (Throwable t) {
-                    throw new RuntimeException(t);
+                    final Map<String, Tag> map = new HashMap<>();
+                    for (String key : ((CompoundTag) tag).getAllKeys()) {
+                        map.put(key, ((CompoundTag) tag).get(key));
+                    }
+                    return map;
                 }
             case Tag.TAG_INT_ARRAY:
                 return ((IntArrayTag) tag).getAsIntArray();
