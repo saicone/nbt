@@ -3,6 +3,7 @@ package com.saicone.nbt.util;
 import com.saicone.nbt.Tag;
 import com.saicone.nbt.TagMapper;
 import com.saicone.nbt.TagType;
+import com.saicone.nbt.io.TagReader;
 import com.saicone.nbt.io.TagWriter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Utility class to read/write tags from/as simplified configuration format.
@@ -20,8 +20,6 @@ import java.util.Set;
  * @author Rubenicos
  */
 public class TagConfig {
-
-    private static final Set<Character> NUMBER_SUFFIX = Set.of('b', 'B', 's', 'S', 'l', 'L', 'f', 'F', 'd', 'D');
 
     TagConfig() {
     }
@@ -143,6 +141,11 @@ public class TagConfig {
             case Tag.LONG_ARRAY:
                 return mapper.buildAny(type, value);
             case Tag.STRING:
+                // Do NOT convert to:
+                // - Boolean
+                // - Integer
+                // - List
+                // - Compound
                 return fromConfigString((String) value, mapper);
             case Tag.LIST:
                 final List<T> list = new ArrayList<>();
@@ -169,90 +172,43 @@ public class TagConfig {
 
     @Nullable
     private static <T, A extends T> A fromConfigString(@NotNull String value, @NotNull TagMapper<T> mapper) {
-        if (value.length() < 2) {
+        if (value.length() < 2 || value.charAt(0) == '{' || value.equals("true") || value.equals("false") || isInteger(value)) {
             return mapper.buildAny(TagType.STRING, value);
         }
-        if (value.startsWith("[") && value.endsWith("]")) {
-            if (value.startsWith("[B;")) {
-                final List<Byte> list = new ArrayList<>();
-                for (String s : value.substring(3, value.length() - 1).split(",")) {
-                    if (!s.endsWith("B")) {
-                        list.clear();
-                        return mapper.buildAny(TagType.STRING, value);
-                    }
-                    list.add(Byte.parseByte(s.trim().substring(0, s.length() - 1)));
-                }
-                final byte[] array = new byte[list.size()];
-                for (int i = 0; i < list.size(); i++) {
-                    array[i] = list.get(i);
-                }
-                return mapper.buildAny(TagType.BYTE_ARRAY, array);
-            } else if (value.startsWith("[L;")) {
-                final List<Long> list = new ArrayList<>();
-                for (String s : value.substring(3, value.length() - 1).split(",")) {
-                    if (!s.endsWith("L")) {
-                        list.clear();
-                        return mapper.buildAny(TagType.STRING, value);
-                    }
-                    list.add(Long.parseLong(s.trim().substring(0, s.length() - 1)));
-                }
-                final long[] array = new long[list.size()];
-                for (int i = 0; i < list.size(); i++) {
-                    array[i] = list.get(i);
-                }
-                return mapper.buildAny(TagType.LONG_ARRAY, array);
-            } else if (value.startsWith("[I;")) {
-                final List<Integer> list = new ArrayList<>();
-                for (String s : value.substring(3, value.length() - 1).split(",")) {
-                    list.add(Integer.parseInt(s.trim()));
-                }
-                final int[] array = new int[list.size()];
-                for (int i = 0; i < list.size(); i++) {
-                    array[i] = list.get(i);
-                }
-                return mapper.buildAny(TagType.INT_ARRAY, array);
-            } else {
-                return mapper.buildAny(TagType.STRING, value);
-            }
-        }
 
-        final char suffix = value.charAt(value.length() - 1);
-        if (NUMBER_SUFFIX.contains(suffix)) {
-            final String s = value.substring(0, value.length() - 1);
-            if (isNumber(s)) {
-                switch (suffix) {
+        if (value.length() > 2 && value.charAt(0) == '[' && value.charAt(value.length() - 1) == ']') {
+            if (value.charAt(2) == ';') {
+                switch (value.charAt(1)) {
                     case 'b':
                     case 'B':
-                        return mapper.buildAny(TagType.BYTE, Byte.parseByte(s));
-                    case 's':
-                    case 'S':
-                        return mapper.buildAny(TagType.SHORT, Short.parseShort(s));
+                    case 'i':
+                    case 'I':
                     case 'l':
                     case 'L':
-                        return mapper.buildAny(TagType.LONG, Long.parseLong(s));
-                    case 'f':
-                    case 'F':
-                        return mapper.buildAny(TagType.FLOAT, Float.parseFloat(s));
-                    case 'd':
-                    case 'D':
-                        return mapper.buildAny(TagType.DOUBLE, Double.parseDouble(s));
+                        break;
+                    default:
+                        return mapper.buildAny(TagType.STRING, value);
                 }
             }
         }
-        return mapper.buildAny(TagType.STRING, value);
+
+        return TagReader.fromString(value, mapper);
     }
 
-    private static boolean isNumber(@NotNull String s) {
-        if (s.isBlank()) {
+    private static boolean isInteger(@NotNull String s) {
+        int i;
+        if (s.charAt(0) == '-') {
+            if (s.length() > 11) {
+                return false;
+            }
+            i = 1;
+        } else if (s.length() > 10) {
             return false;
+        } else {
+            i = 0;
         }
-        boolean decimal = false;
-        for (char c : (s.charAt(0) == '-' ? s.substring(1) : s).toCharArray()) {
-            if (!Character.isDigit(c)) {
-                if (!decimal && c == '.') {
-                    decimal = true;
-                    continue;
-                }
+        for (; i < s.length(); i++) {
+            if (!Character.isDigit(s.charAt(i))) {
                 return false;
             }
         }
