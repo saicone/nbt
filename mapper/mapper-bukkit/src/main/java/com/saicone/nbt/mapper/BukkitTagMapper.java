@@ -12,7 +12,9 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -637,6 +639,34 @@ public class BukkitTagMapper implements TagMapper<Object> {
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
+    }
+
+    @Override
+    public Object parse(@NotNull List<?> list) {
+        if (CACHE_COMPATIBLE && !list.isEmpty() && isType(list.get(0))) {
+            // Check if list is mutable
+            try {
+                list.addAll(List.of());
+                return build(TagType.LIST, list);
+            } catch (UnsupportedOperationException e) {
+                return build(TagType.LIST, new ArrayList<>(list));
+            }
+        }
+        return TagMapper.super.parse(list);
+    }
+
+    @Override
+    public Object parse(@NotNull Map<String, ?> map) {
+        if (CACHE_COMPATIBLE && !map.isEmpty() && isType(map.values().iterator().next())) {
+            // Check if map is mutable
+            try {
+                map.putAll(Map.of());
+                return build(TagType.COMPOUND, map);
+            } catch (UnsupportedOperationException e) {
+                return build(TagType.COMPOUND, new HashMap<>(map));
+            }
+        }
+        return TagMapper.super.parse(map);
     }
 
     @Override

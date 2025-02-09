@@ -3,6 +3,8 @@ package com.saicone.nbt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +40,33 @@ public interface TagMapper<T> {
     /**
      * Create a tag object from its value represented as java object.
      *
+     * @param object the object value to convert.
+     * @return       a tag object containing the object value.
+     */
+    default T build(@Nullable Object object) {
+        return build(TagType.getType(object), object);
+    }
+
+    /**
+     * Create a tag object from its value represented as java object.
+     *
      * @param type   the type of tag that will be converted.
      * @param object the object value to convert.
      * @return       a tag object containing the object value.
      */
     T build(@NotNull TagType<?> type, @Nullable Object object);
+
+    /**
+     * Create an unchecked tag object from its value represented as java object.<br>
+     * This method assumes that the required object is the type of that is returned.
+     *
+     * @param object the object value to convert.
+     * @return       an unchecked tag object containing the object value.
+     * @param <A>    the implementation of tag object.
+     */
+    default <A extends T> A buildAny(@Nullable Object object) {
+        return buildAny(TagType.getType(object), object);
+    }
 
     /**
      * Create an unchecked tag object from its value represented as java object.<br>
@@ -56,6 +80,104 @@ public interface TagMapper<T> {
     @SuppressWarnings("unchecked")
     default <A extends T> A buildAny(@NotNull TagType<?> type, @Nullable Object object) {
         return (A) build(type, object);
+    }
+
+    /**
+     * Convert the provided value and any inner element to tag object if it isn't a tag type.<br>
+     * This method safely convert any unmodifiable list or map into a required one.
+     *
+     * @param object the object value to convert.
+     * @return       a tag object containing the object value.
+     */
+    @SuppressWarnings("unchecked")
+    default T parse(@Nullable Object object) {
+        if (isType(object)) {
+            return (T) object;
+        }
+        return parse(TagType.getType(object), object);
+    }
+
+    /**
+     * Convert the provided list and any inner element to tag object.<br>
+     * This method safely convert any unmodifiable list into a required one.
+     *
+     * @param list the list to convert.
+     * @return     a list tag object containing the list value or elements.
+     */
+    default T parse(@NotNull List<?> list) {
+        if (!list.isEmpty() && !isType(list.get(0))) {
+            final List<T> tagList = new ArrayList<>();
+            for (Object element : list) {
+                tagList.add(parse(element));
+            }
+            return build(TagType.LIST, tagList);
+        }
+        return build(TagType.LIST, list);
+    }
+
+    /**
+     * Convert the provided map and any inner value to tag object.<br>
+     * This method safely convert any unmodifiable map into a required one.
+     *
+     * @param map the map to convert.
+     * @return    a compound tag object containing the map value or entries.
+     */
+    default T parse(@NotNull Map<String, ?> map) {
+        if (!map.isEmpty() && !isType(map.values().iterator().next())) {
+            final Map<String, T> compound = new HashMap<>();
+            for (Map.Entry<String, ?> entry : map.entrySet()) {
+                compound.put(entry.getKey(), parse(entry.getValue()));
+            }
+            return build(TagType.COMPOUND, compound);
+        }
+        return build(TagType.COMPOUND, map);
+    }
+
+    /**
+     * Convert the provided value and any inner element to tag object.<br>
+     * This method safely convert any unmodifiable list or map into a required one.
+     *
+     * @param type   the type of tag that will be converted.
+     * @param object the object value to convert.
+     * @return       a tag object containing the object value.
+     */
+    @SuppressWarnings("unchecked")
+    default T parse(@NotNull TagType<?> type, @Nullable Object object) {
+        if (type == TagType.LIST) {
+            return parse((List<?>) object);
+        } else if (type == TagType.COMPOUND) {
+            return parse((Map<String, ?>) object);
+        }
+        return build(type, object);
+    }
+
+    /**
+     * Create an unchecked tag object from the provided value and any inner element if it isn't a tag type.<br>
+     * This method assumes that the required object is the type of that is returned
+     * and also safely convert any unmodifiable list or map into a required one.
+     *
+     * @param object the object value to convert.
+     * @return       a tag object containing the object value.
+     * @param <A>    the implementation of tag object.
+     */
+    @SuppressWarnings("unchecked")
+    default <A extends T> A parseAny(@Nullable Object object) {
+        return (A) parse(object);
+    }
+
+    /**
+     * Create an unchecked tag object from the provided value and any inner element.<br>
+     * This method assumes that the required object is the type of that is returned
+     * and also safely convert any unmodifiable list or map into a required one.
+     *
+     * @param type   the type of tag that will be converted.
+     * @param object the object value to convert.
+     * @return       a tag object containing the object value.
+     * @param <A>    the implementation of tag object.
+     */
+    @SuppressWarnings("unchecked")
+    default <A extends T> A parseAny(@NotNull TagType<?> type, @Nullable Object object) {
+        return (A) parse(type, object);
     }
 
     /**
@@ -75,6 +197,33 @@ public interface TagMapper<T> {
             return longArray(t);
         }
         return t;
+    }
+
+    /**
+     * Deeply extract the inner value that tag object implementation
+     * contains and it's elements if inner value it is a List or Map.
+     *
+     * @param t the tag object.
+     * @return  a java value any inner element as java value that was represented from tag object.
+     */
+    @SuppressWarnings("unchecked")
+    default Object deepExtract(@Nullable T t) {
+        final Object value = extract(t);
+        if (value instanceof List) {
+            final List<Object> list = new ArrayList<>();
+            for (T element : (List<T>) value) {
+                list.add(deepExtract(element));
+            }
+            return list;
+        } else if (value instanceof Map) {
+            final Map<String, Object> map = new HashMap<>();
+            for (Map.Entry<String, T> entry : ((Map<String, T>) value).entrySet()) {
+                map.put(entry.getKey(), deepExtract(entry.getValue()));
+            }
+            return map;
+        } else {
+            return value;
+        }
     }
 
     /**

@@ -38,6 +38,19 @@ public class CloudburstTagMapper implements TagMapper<Object> {
     }
 
     @Override
+    public Object parse(@Nullable Object object) {
+        if (object instanceof NbtList || object instanceof NbtMap) {
+            return object;
+        }
+        return parse(TagType.getType(object), object);
+    }
+
+    @Override
+    public Object extract(@Nullable Object object) {
+        return object;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public int size(@Nullable Object object) {
         if (object instanceof NbtList) {

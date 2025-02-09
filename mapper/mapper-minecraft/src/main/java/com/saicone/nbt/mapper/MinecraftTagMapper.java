@@ -106,6 +106,20 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
     }
 
     @Override
+    public Tag parse(@NotNull List<?> list) {
+        if (!list.isEmpty() && isType(list.get(0))) {
+            // Check if list is mutable
+            try {
+                list.addAll(List.of());
+                return build(TagType.LIST, list);
+            } catch (UnsupportedOperationException e) {
+                return build(TagType.LIST, new ArrayList<>(list));
+            }
+        }
+        return TagMapper.super.parse(list);
+    }
+
+    @Override
     public Object extract(@Nullable Tag tag) {
         if (tag == null) {
             return null;
