@@ -82,6 +82,7 @@ public class BukkitTagMapper implements TagMapper<Object> {
     private static final Class<?> TAG_TYPE;
 
     private static final MethodHandle TAG_ID;
+    private static final MethodHandle TAG_COPY;
     private static final MethodHandle TAG_SIZE;
 
     private static final MethodHandle NEW_END;
@@ -227,6 +228,7 @@ public class BukkitTagMapper implements TagMapper<Object> {
         }
 
         MethodHandle tag$id = null;
+        MethodHandle tag$copy = null;
         MethodHandle tag$size = null;
         MethodHandle new$EndTag = null;
         MethodHandle new$ByteTag = null;
@@ -261,16 +263,20 @@ public class BukkitTagMapper implements TagMapper<Object> {
 
             if (isMojangMapped) {
                 tag$id = lookup.findVirtual(Tag, "getId", MethodType.methodType(byte.class));
+                tag$copy = lookup.findVirtual(Tag, "copy", MethodType.methodType(Tag));
                 if (version >= V_1_19_3) {
                     tag$size = lookup.findVirtual(Tag, "sizeInBytes", MethodType.methodType(int.class));
                 }
             } else if (version >= V_1_19_3) {
                 tag$id = lookup.findVirtual(Tag, "b", MethodType.methodType(byte.class));
+                tag$copy = lookup.findVirtual(Tag, "d", MethodType.methodType(Tag));
                 tag$size = lookup.findVirtual(Tag, "a", MethodType.methodType(int.class));
             } else if (version >= V_1_18) {
                 tag$id = lookup.findVirtual(Tag, "a", MethodType.methodType(byte.class));
+                tag$copy = lookup.findVirtual(Tag, "c", MethodType.methodType(Tag));
             } else {
                 tag$id = lookup.findVirtual(Tag, "getTypeId", MethodType.methodType(byte.class));
+                tag$copy = lookup.findVirtual(Tag, "clone", MethodType.methodType(Tag));
             }
 
             if (isMojangMapped && version >= V_1_15) {
@@ -437,6 +443,7 @@ public class BukkitTagMapper implements TagMapper<Object> {
         TAG_TYPE = Tag;
 
         TAG_ID = tag$id;
+        TAG_COPY = tag$copy;
         TAG_SIZE = tag$size;
 
         NEW_END = new$EndTag;
@@ -705,6 +712,15 @@ public class BukkitTagMapper implements TagMapper<Object> {
                 default:
                     throw new IllegalArgumentException("Invalid tag type: " + object);
             }
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
+
+    @Override
+    public @NotNull Object copy(@NotNull Object o) {
+        try {
+            return TAG_COPY.invoke(o);
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }

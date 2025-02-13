@@ -170,6 +170,11 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
     }
 
     @Override
+    public @NotNull Tag copy(@NotNull Tag tag) {
+        return tag.copy();
+    }
+
+    @Override
     public int size(@Nullable Tag tag) {
         return tag == null ? EndTag.INSTANCE.sizeInBytes() : tag.sizeInBytes();
     }

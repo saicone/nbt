@@ -20,9 +20,11 @@ import se.llbit.nbt.SpecificTag;
 import se.llbit.nbt.StringTag;
 import se.llbit.nbt.Tag;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * TagMapper implementation to handle NBT values as jo-nbt code abstraction.
@@ -128,6 +130,21 @@ public class JoNbtTagMapper implements TagMapper<Tag> {
             default:
                 throw new IllegalArgumentException("Invalid tag type: " + tag);
         }
+    }
+
+    @Override
+    public @NotNull Tag copy(@NotNull Tag tag) {
+        if (tag instanceof ListTag) {
+            final List<SpecificTag> items = ((ListTag) tag).items.stream().map(t -> (SpecificTag) copy(t)).collect(Collectors.toCollection(ArrayList::new));
+            return new ListTag(((ListTag) tag).getType(), items);
+        } else if (tag instanceof CompoundTag) {
+            final List<NamedTag> items = new ArrayList<>();
+            for (NamedTag namedTag : tag.asCompound()) {
+                items.add(new NamedTag(namedTag.name(), (SpecificTag) copy(namedTag.getTag())));
+            }
+            return new CompoundTag(items);
+        }
+        return TagMapper.super.copy(tag);
     }
 
     @Override

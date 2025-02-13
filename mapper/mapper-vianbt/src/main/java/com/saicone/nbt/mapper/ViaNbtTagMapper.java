@@ -116,6 +116,11 @@ public class ViaNbtTagMapper implements TagMapper<Tag> {
     }
 
     @Override
+    public @NotNull Tag copy(@NotNull Tag tag) {
+        return tag.copy();
+    }
+
+    @Override
     public @NotNull <A> TagType<A> type(@Nullable Tag tag) {
         return tag == null ? TagType.getType(TagRegistry.END) : TagType.getType(tag.getTagId());
     }

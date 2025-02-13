@@ -9,9 +9,12 @@ import org.cloudburstmc.nbt.NbtType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * TagMapper implementation to handle NBT values as CloudburstMC code abstraction.
@@ -48,6 +51,36 @@ public class CloudburstTagMapper implements TagMapper<Object> {
     @Override
     public Object extract(@Nullable Object object) {
         return object;
+    }
+
+    @Override
+    public @NotNull Object copy(@NotNull Object object) {
+        switch (typeId(object)) {
+            case Tag.END:
+            case Tag.BYTE:
+            case Tag.SHORT:
+            case Tag.INT:
+            case Tag.LONG:
+            case Tag.FLOAT:
+            case Tag.DOUBLE:
+            case Tag.STRING:
+                // Immutable type
+                return object;
+            case Tag.BYTE_ARRAY:
+                return Arrays.copyOf((byte[]) object, ((byte[]) object).length);
+            case Tag.LIST:
+                final List<Object> list = ((NbtList<?>) object).stream().map(this::copy).collect(Collectors.toCollection(ArrayList::new));
+                return new NbtList(((NbtList<?>) object).getType(), list);
+            case Tag.COMPOUND:
+                final Map<String, Object> map = ((NbtMap) object).entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> copy(e.getValue())));
+                return NbtMap.fromMap(map);
+            case Tag.INT_ARRAY:
+                return Arrays.copyOf((int[]) object, ((int[]) object).length);
+            case Tag.LONG_ARRAY:
+                return Arrays.copyOf((long[]) object, ((long[]) object).length);
+            default:
+                throw new IllegalArgumentException("Invalid tag type: " + object);
+        }
     }
 
     @Override

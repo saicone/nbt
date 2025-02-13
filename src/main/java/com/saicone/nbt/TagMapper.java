@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <b>Tag Mapper</b><br>
@@ -223,6 +224,52 @@ public interface TagMapper<T> {
             return map;
         } else {
             return value;
+        }
+    }
+
+    /**
+     * Copy the provided tag object and any of its elements.
+     *
+     * @param t the tag to copy.
+     * @return  a deep copy of tag.
+     */
+    @NotNull
+    @SuppressWarnings("unchecked")
+    default T copy(@NotNull T t) {
+        switch (typeId(t)) {
+            case Tag.END:
+            case Tag.BYTE:
+            case Tag.SHORT:
+            case Tag.INT:
+            case Tag.LONG:
+            case Tag.FLOAT:
+            case Tag.DOUBLE:
+            case Tag.STRING:
+                // Immutable type
+                return t;
+            case Tag.BYTE_ARRAY:
+                final byte[] fromBytes = (byte[]) extract(t);
+                final byte[] toBytes = new byte[fromBytes.length];
+                System.arraycopy(fromBytes, 0, toBytes, 0, fromBytes.length);
+                return build(TagType.BYTE_ARRAY, toBytes);
+            case Tag.LIST:
+                final List<T> list = ((List<T>) extract(t)).stream().map(this::copy).collect(Collectors.toCollection(ArrayList::new));
+                return build(TagType.LIST, list);
+            case Tag.COMPOUND:
+                final Map<String, T> map = ((Map<String, T>) extract(t)).entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> copy(e.getValue())));
+                return build(TagType.COMPOUND, map);
+            case Tag.INT_ARRAY:
+                final int[] fromInts = (int[]) extract(t);
+                final int[] toInts = new int[fromInts.length];
+                System.arraycopy(fromInts, 0, toInts, 0, fromInts.length);
+                return build(TagType.INT_ARRAY, toInts);
+            case Tag.LONG_ARRAY:
+                final long[] fromLongs = (long[]) extract(t);
+                final long[] toLongs = new long[fromLongs.length];
+                System.arraycopy(fromLongs, 0, toLongs, 0, fromLongs.length);
+                return build(TagType.LONG_ARRAY, toLongs);
+            default:
+                throw new IllegalArgumentException("Invalid tag type: " + t);
         }
     }
 
