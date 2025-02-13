@@ -13,6 +13,7 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongArrayTag;
 import net.minecraft.nbt.LongTag;
+import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -128,17 +129,17 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
             case Tag.TAG_END:
                 return null;
             case Tag.TAG_BYTE:
-                return ((ByteTag) tag).getAsByte();
+                return ((NumericTag) tag).getAsByte();
             case Tag.TAG_SHORT:
-                return ((ShortTag) tag).getAsShort();
+                return ((NumericTag) tag).getAsShort();
             case Tag.TAG_INT:
-                return ((IntTag) tag).getAsInt();
+                return ((NumericTag) tag).getAsInt();
             case Tag.TAG_LONG:
-                return ((LongTag) tag).getAsLong();
+                return ((NumericTag) tag).getAsLong();
             case Tag.TAG_FLOAT:
-                return ((FloatTag) tag).getAsFloat();
+                return ((NumericTag) tag).getAsFloat();
             case Tag.TAG_DOUBLE:
-                return ((DoubleTag) tag).getAsDouble();
+                return ((NumericTag) tag).getAsDouble();
             case Tag.TAG_BYTE_ARRAY:
                 return ((ByteArrayTag) tag).getAsByteArray();
             case Tag.TAG_STRING:

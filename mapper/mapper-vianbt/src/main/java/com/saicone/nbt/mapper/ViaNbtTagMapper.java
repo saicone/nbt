@@ -13,6 +13,7 @@ import com.viaversion.nbt.tag.IntTag;
 import com.viaversion.nbt.tag.ListTag;
 import com.viaversion.nbt.tag.LongArrayTag;
 import com.viaversion.nbt.tag.LongTag;
+import com.viaversion.nbt.tag.NumberTag;
 import com.viaversion.nbt.tag.ShortTag;
 import com.viaversion.nbt.tag.StringTag;
 import com.viaversion.nbt.tag.Tag;
@@ -85,17 +86,17 @@ public class ViaNbtTagMapper implements TagMapper<Tag> {
             case TagRegistry.END:
                 return null;
             case ByteTag.ID:
-                return ((ByteTag) tag).asByte();
+                return ((NumberTag) tag).asByte();
             case ShortTag.ID:
-                return ((ShortTag) tag).asShort();
+                return ((NumberTag) tag).asShort();
             case IntTag.ID:
-                return ((IntTag) tag).asInt();
+                return ((NumberTag) tag).asInt();
             case LongTag.ID:
-                return ((LongTag) tag).asLong();
+                return ((NumberTag) tag).asLong();
             case FloatTag.ID:
-                return ((FloatTag) tag).asFloat();
+                return ((NumberTag) tag).asFloat();
             case DoubleTag.ID:
-                return ((DoubleTag) tag).asDouble();
+                return ((NumberTag) tag).asDouble();
             case ByteArrayTag.ID:
                 return ((ByteArrayTag) tag).getValue();
             case StringTag.ID:
