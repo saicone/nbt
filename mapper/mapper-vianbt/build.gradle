@@ -1,0 +1,7 @@
+repositories {
+    maven { url 'https://repo.viaversion.com' }
+}
+
+dependencies {
+    compileOnly('com.viaversion:nbt:5.0.2') { transitive = false }
+}
