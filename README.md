@@ -90,7 +90,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.saicone.nbt:nbt:1.0.0'
+    implementation 'com.saicone.nbt:nbt:1.0.1'
 }
 ```
 
@@ -105,7 +105,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.saicone.nbt:nbt:1.0.0")
+    implementation("com.saicone.nbt:nbt:1.0.1")
 }
 ```
 
@@ -126,7 +126,7 @@ dependencies {
     <dependency>
         <groupId>com.saicone.nbt</groupId>
         <artifactId>nbt</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
         <scope>compile</scope>
     </dependency>
 </dependencies>
@@ -201,6 +201,9 @@ InputStream in = Files.newInputStream(Path.of("myfile.nbt"));
 // Read from file
 Map<String, Object> map;
 try (TagInput<Object> input = TagInput.of(new DataInputStream(in))) {
+    // Input must not be limited while reading a file
+    input.unlimited();
+    
     map = input.readUnnamed();
 }
 ```
@@ -262,6 +265,9 @@ InputStream in = Files.newInputStream(Path.of("myfile.nbt"));
 // Read from file
 Map<String, Object> map;
 try (TagInput<Object> input = TagInput.of(new ReverseDataInputStream(in))) {
+    // Input must not be limited while reading a file
+    input.unlimited();
+    
     map = input.readBedrockFile();
 }
 ```
@@ -319,7 +325,7 @@ Integer level = ZipFormat.zlib().getCompressionLevel(data);
 
 ### Other
 
-If you have a `DataOuput` instance, you can also create a delegated class with fallback writing for malformed Strings.
+If you have a `DataOuput` instance, you can also create a delegated class with fallback writing for malformatted Strings.
 ```java
 DataOutput output = ...;
 
@@ -336,9 +342,9 @@ That's because Minecraft have changed across the time (it's a 15th year-old game
 * any, mean a tag, introduced for Java on Minecraft 1.20.2.
 * bedrock file, mean a tag written in a bedrock file with its [header](https://wiki.bedrock.dev/nbt/nbt-in-depth.html#bedrock-nbt-file-header).
 
-Following Minecraft format, there's no limit to write with a tag output, but tag input is limited by default with a maximum of 2MB size for tag (due network limitations) and 512 stack depth for nested values (since MC 1.20.2).
+Following Minecraft format, there's no limit to write with a tag output, but tag input is limited by default with a maximum of 2MB size for tag (due network limitations) and 512 stack depth for nested values (since MC 1.20.2) to avoid a stack overflow error.
 
-To change that limits you can also modify the recently created TagInput instance, for example:
+To change those limits you can also modify the recently created TagInput instance, for example:
 ```java
 TagInput<Object> input = ...;
 
