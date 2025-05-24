@@ -3,5 +3,5 @@ repositories {
 }
 
 dependencies {
-    compileOnly('com.viaversion:nbt:5.0.2') { transitive = false }
+    compileOnly('com.viaversion:nbt:5.1.1') { transitive = false }
 }

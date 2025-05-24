@@ -90,7 +90,7 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
             case Tag.TAG_STRING:
                 return StringTag.valueOf((String) object);
             case Tag.TAG_LIST:
-                return new ListTag((List<Tag>) object, typeId((Iterable<Tag>) object));
+                return new ListTag((List<Tag>) object);
             case Tag.TAG_COMPOUND:
                 final CompoundTag tag = new CompoundTag();
                 for (Map.Entry<String, Tag> entry : ((Map<String, Tag>) object).entrySet()) {
@@ -129,21 +129,21 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
             case Tag.TAG_END:
                 return null;
             case Tag.TAG_BYTE:
-                return ((NumericTag) tag).getAsByte();
+                return ((NumericTag) tag).byteValue();
             case Tag.TAG_SHORT:
-                return ((NumericTag) tag).getAsShort();
+                return ((NumericTag) tag).shortValue();
             case Tag.TAG_INT:
-                return ((NumericTag) tag).getAsInt();
+                return ((NumericTag) tag).intValue();
             case Tag.TAG_LONG:
-                return ((NumericTag) tag).getAsLong();
+                return ((NumericTag) tag).longValue();
             case Tag.TAG_FLOAT:
-                return ((NumericTag) tag).getAsFloat();
+                return ((NumericTag) tag).floatValue();
             case Tag.TAG_DOUBLE:
-                return ((NumericTag) tag).getAsDouble();
+                return ((NumericTag) tag).doubleValue();
             case Tag.TAG_BYTE_ARRAY:
                 return ((ByteArrayTag) tag).getAsByteArray();
             case Tag.TAG_STRING:
-                return ((StringTag) tag).getAsString();
+                return ((StringTag) tag).value();
             case Tag.TAG_LIST:
                 try {
                     return LIST_VALUE.invoke(tag);
@@ -155,8 +155,8 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
                     return COMPOUND_VALUE.invoke(tag);
                 } catch (Throwable t) {
                     final Map<String, Tag> map = new HashMap<>();
-                    for (String key : ((CompoundTag) tag).getAllKeys()) {
-                        map.put(key, ((CompoundTag) tag).get(key));
+                    for (Map.Entry<String, Tag> entry : ((CompoundTag) tag).entrySet()) {
+                        map.put(entry.getKey(), entry.getValue());
                     }
                     return map;
                 }
@@ -199,6 +199,6 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
 
     @Override
     public byte listTypeId(@NotNull Tag tag) {
-        return ((ListTag) tag).getElementType();
+        return ((ListTag) tag).isEmpty() ? Tag.TAG_END : ((ListTag) tag).get(0).getId();
     }
 }

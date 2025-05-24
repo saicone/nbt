@@ -38,7 +38,7 @@ public class BukkitTagMapper implements TagMapper<Object> {
     // --- READ THIS BEFORE CONTINUE
     // The usage of MethodHandle in static final fields make the reflection
     // to act like direct calls, so this implementation is probably faster
-    // than Minecraft mapper implementation itself.
+    // than mojang-mapped implementation itself.
     //
     // This class was written into the most descriptive way possible,
     // there are better and shorter ways to create a static final MethodHandle,
@@ -58,6 +58,8 @@ public class BukkitTagMapper implements TagMapper<Object> {
     private static final int V_1_18 = 2860;
     // Added method to calculate size in bytes
     private static final int V_1_19_3 = 3218;
+    // Moved classes to records and added support to heterogeneous lists
+    private static final int V_1_21_5 = 3218;
 
     // Mod Coder Pack class names, used by very old Bukkit versions and nowadays by Spigot mappings
     private static final Map<String, String> MPC_MAPPINGS = Map.ofEntries(
@@ -135,6 +137,11 @@ public class BukkitTagMapper implements TagMapper<Object> {
                 version = V_1_19_3;
             } else {
                 switch (feature) {
+                    case 21:
+                        if (minor == 5) {
+                            version = V_1_21_5;
+                            break;
+                        }
                     case 19:
                         if (minor == 3) {
                             version = V_1_19_3;
@@ -280,7 +287,12 @@ public class BukkitTagMapper implements TagMapper<Object> {
             }
 
             if (isMojangMapped && version >= V_1_15) {
-                final Constructor<?> constructor$List = ListTag.getDeclaredConstructor(List.class, byte.class);
+                final Constructor<?> constructor$List;
+                if (version >= V_1_21_5) {
+                    constructor$List = ListTag.getDeclaredConstructor(List.class);
+                } else {
+                    constructor$List = ListTag.getDeclaredConstructor(List.class, byte.class);
+                }
                 final Constructor<?> constructor$Compound = CompoundTag.getDeclaredConstructor(Map.class);
                 constructor$List.setAccessible(true);
                 constructor$Compound.setAccessible(true);
@@ -353,18 +365,46 @@ public class BukkitTagMapper implements TagMapper<Object> {
             final Field field$intArray;
             final Field field$longArray;
             if (isMojangMapped && version >= V_1_17) {
-                field$byte = ByteTag.getDeclaredField("data");
-                field$short = ShortTag.getDeclaredField("data");
-                field$int = IntTag.getDeclaredField("data");
-                field$long = LongTag.getDeclaredField("data");
-                field$float = FloatTag.getDeclaredField("data");
-                field$double = DoubleTag.getDeclaredField("data");
-                field$byteArray = ByteArrayTag.getDeclaredField("data");
-                field$String = StringTag.getDeclaredField("data");
-                field$List = ListTag.getDeclaredField("list");
-                field$Map = CompoundTag.getDeclaredField("tags");
-                field$intArray = IntArrayTag.getDeclaredField("data");
-                field$longArray = LongArrayTag.getDeclaredField("data");
+                if (version >= V_1_21_5) {
+                    field$byte = ByteTag.getDeclaredField("value");
+                    field$short = ShortTag.getDeclaredField("value");
+                    field$int = IntTag.getDeclaredField("value");
+                    field$long = LongTag.getDeclaredField("value");
+                    field$float = FloatTag.getDeclaredField("value");
+                    field$double = DoubleTag.getDeclaredField("value");
+                    field$byteArray = ByteArrayTag.getDeclaredField("data");
+                    field$String = StringTag.getDeclaredField("value");
+                    field$List = ListTag.getDeclaredField("list");
+                    field$Map = CompoundTag.getDeclaredField("tags");
+                    field$intArray = IntArrayTag.getDeclaredField("data");
+                    field$longArray = LongArrayTag.getDeclaredField("data");
+                } else {
+                    field$byte = ByteTag.getDeclaredField("data");
+                    field$short = ShortTag.getDeclaredField("data");
+                    field$int = IntTag.getDeclaredField("data");
+                    field$long = LongTag.getDeclaredField("data");
+                    field$float = FloatTag.getDeclaredField("data");
+                    field$double = DoubleTag.getDeclaredField("data");
+                    field$byteArray = ByteArrayTag.getDeclaredField("data");
+                    field$String = StringTag.getDeclaredField("data");
+                    field$List = ListTag.getDeclaredField("list");
+                    field$Map = CompoundTag.getDeclaredField("tags");
+                    field$intArray = IntArrayTag.getDeclaredField("data");
+                    field$longArray = LongArrayTag.getDeclaredField("data");
+                }
+            } else if (version >= V_1_21_5) {
+                field$byte = ByteTag.getDeclaredField("v");
+                field$short = ShortTag.getDeclaredField("b");
+                field$int = IntTag.getDeclaredField("b");
+                field$long = LongTag.getDeclaredField("b");
+                field$float = FloatTag.getDeclaredField("c");
+                field$double = DoubleTag.getDeclaredField("c");
+                field$byteArray = ByteArrayTag.getDeclaredField("c");
+                field$String = StringTag.getDeclaredField("b");
+                field$List = ListTag.getDeclaredField("v");
+                field$Map = CompoundTag.getDeclaredField("x");
+                field$intArray = IntArrayTag.getDeclaredField("c");
+                field$longArray = LongArrayTag.getDeclaredField("c");
             } else if (version >= V_1_17) {
                 field$byte = ByteTag.getDeclaredField("x");
                 field$short = ShortTag.getDeclaredField("c");
@@ -422,18 +462,21 @@ public class BukkitTagMapper implements TagMapper<Object> {
             get$IntArrayTag = lookup.unreflectGetter(field$intArray);
             get$LongArrayTag = lookup.unreflectGetter(field$longArray);
 
-            final Field field$type;
-            if (isMojangMapped && version >= V_1_17) {
-                field$type = ListTag.getDeclaredField("type");
-            } else if (version >= V_1_17) {
-                field$type = ListTag.getDeclaredField("w");
-            } else {
-                field$type = ListTag.getDeclaredField("type");
-            }
-            field$type.setAccessible(true);
+            // Homogeneous lists
+            if (version < V_1_21_5) {
+                final Field field$type;
+                if (isMojangMapped && version >= V_1_17) {
+                    field$type = ListTag.getDeclaredField("type");
+                } else if (version >= V_1_17) {
+                    field$type = ListTag.getDeclaredField("w");
+                } else {
+                    field$type = ListTag.getDeclaredField("type");
+                }
+                field$type.setAccessible(true);
 
-            get$listType = lookup.unreflectGetter(field$type);
-            set$listType = lookup.unreflectSetter(field$type);
+                get$listType = lookup.unreflectGetter(field$type);
+                set$listType = lookup.unreflectSetter(field$type);
+            }
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -478,6 +521,7 @@ public class BukkitTagMapper implements TagMapper<Object> {
     }
 
     private static final boolean CACHE_COMPATIBLE = VERSION >= V_1_15;
+    private static final boolean HETEROGENEOUS_LIST = VERSION >= V_1_21_5;
 
     private static final int HIGH = 1024;
     private static final int LOW = -128;
@@ -572,7 +616,11 @@ public class BukkitTagMapper implements TagMapper<Object> {
                     case Tag.STRING:
                         return NEW_STRING.invoke(object);
                     case Tag.LIST:
-                        return NEW_LIST.invoke(object, typeId((Iterable<Object>) object));
+                        if (HETEROGENEOUS_LIST) {
+                            return NEW_LIST.invoke(object);
+                        } else {
+                            return NEW_LIST.invoke(object, typeId((Iterable<Object>) object));
+                        }
                     case Tag.COMPOUND:
                         return NEW_COMPOUND.invoke(object);
                     case Tag.INT_ARRAY:
@@ -763,6 +811,9 @@ public class BukkitTagMapper implements TagMapper<Object> {
 
     @Override
     public byte listTypeId(@NotNull Object object) {
+        if (HETEROGENEOUS_LIST) {
+            return TagMapper.super.listTypeId(object);
+        }
         try {
             return (byte) GET_LIST_TYPE.invoke(object);
         } catch (Throwable t) {

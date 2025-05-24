@@ -1,5 +1,5 @@
 dependencies {
-    compileOnly 'net.kyori:adventure-nbt:4.17.0'
+    compileOnly 'net.kyori:adventure-nbt:4.21.0'
 }
 
 javadoc {
