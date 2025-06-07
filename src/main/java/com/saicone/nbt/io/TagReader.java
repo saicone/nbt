@@ -3,6 +3,7 @@ package com.saicone.nbt.io;
 import com.saicone.nbt.Tag;
 import com.saicone.nbt.TagType;
 import com.saicone.nbt.TagMapper;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -27,11 +29,20 @@ import java.util.function.Function;
  */
 public class TagReader<T> extends Reader {
 
+    public static final int LATEST = 3;
+    public static final int V1_21_5 = 3;
+    public static final int V1_14 = 2;
+    public static final int V1_0 = 1;
+
     private static final int UNKNOWN_CHARACTER = -1;
     private static final Set<Character> NUMBER_SUFFIX = Set.of('b', 'B', 's', 'S', 'l', 'L', 'f', 'F', 'd', 'D');
+    private static final Set<Character> INTEGER_SUFFIX = Set.of('b', 'B', 's', 'S', 'l', 'L');
+    private static final Set<Character> DECIMAL_SUFFIX = Set.of('f', 'F', 'd', 'D');
 
     private final Reader reader;
     private final TagMapper<T> mapper;
+
+    private transient int version = LATEST;
 
     /**
      * Create a tag reader that create nbt-represented java objects with provided string to read.
@@ -92,6 +103,13 @@ public class TagReader<T> extends Reader {
         this.mapper = mapper;
     }
 
+    @NotNull
+    @Contract("_ -> this")
+    public TagReader<T> version(int version) {
+        this.version = version;
+        return this;
+    }
+
     /**
      * Check if provided char is a quote.
      *
@@ -99,7 +117,7 @@ public class TagReader<T> extends Reader {
      * @return  true if the char is a quote, false otherwise.
      */
     protected boolean isQuote(int c) {
-        return c == '"' || c == '\'';
+        return c == '"' || (version >= V1_14 && c == '\'');
     }
 
     /**
@@ -150,6 +168,14 @@ public class TagReader<T> extends Reader {
         return decimal ? null : true;
     }
 
+    private boolean isCodePoint(int c) {
+        return c >= '0' && c <= '9'
+                || c >= 'A' && c <= 'Z'
+                || c >= 'a' && c <= 'z'
+                || c == '_' || c == '-'
+                || c == ' ';
+    }
+
     /**
      * Get the delegated reader.
      *
@@ -186,6 +212,9 @@ public class TagReader<T> extends Reader {
             case 's':
             case 'S':
                 return TagType.SHORT;
+            case 'i':
+            case 'I':
+                return version >= V1_21_5 ? TagType.INT : null;
             case 'l':
             case 'L':
                 return TagType.LONG;
@@ -463,24 +492,127 @@ public class TagReader<T> extends Reader {
      * @throws IOException if any I/O error occurs.
      */
     @NotNull
+    @SuppressWarnings("fallthrough")
     protected String readQuoted(int quote) throws IOException {
         final StringBuilder builder = new StringBuilder();
         boolean escape = false;
         int i;
         while ((i = read()) != UNKNOWN_CHARACTER) {
-            if (i == quote) {
-                if (escape) {
-                    escape = false;
-                    builder.setCharAt(builder.length() - 1, (char) i);
-                } else {
-                    return builder.toString();
+            if (escape) {
+                escape = false;
+                if (version >= V1_21_5) {
+                    switch (i) {
+                        case 'b':
+                            builder.append('\b');
+                            continue;
+                        case 'f':
+                            builder.append('\f');
+                            continue;
+                        case 'n':
+                            builder.append('\n');
+                            continue;
+                        case 'r':
+                            builder.append('\r');
+                            continue;
+                        case 's':
+                            builder.append(' ');
+                            continue;
+                        case 't':
+                            builder.append('\t');
+                            continue;
+                        case '\\':
+                            builder.append('\\');
+                            continue;
+                        case '\'':
+                            builder.append('\'');
+                            continue;
+                        case '"':
+                            builder.append('"');
+                            continue;
+                        case 'x':
+                            final Optional<String> unicode2 = readUnicode(2);
+                            if (unicode2.isPresent()) {
+                                builder.append(unicode2.get());
+                                continue;
+                            }
+                            break;
+                        case 'u':
+                            final Optional<String> unicode4 = readUnicode(4);
+                            if (unicode4.isPresent()) {
+                                builder.append(unicode4.get());
+                                continue;
+                            }
+                            break;
+                        case 'U':
+                            final Optional<String> unicode8 = readUnicode(8);
+                            if (unicode8.isPresent()) {
+                                builder.append(unicode8.get());
+                                continue;
+                            }
+                            break;
+                        case 'N':
+                            if (skip('{')) {
+                                final StringBuilder name = new StringBuilder();
+                                while ((i = read()) != UNKNOWN_CHARACTER) {
+                                    if (i == '}') {
+                                        try {
+                                            final int codePoint = Character.codePointOf(name.toString());
+                                            builder.append((char) codePoint);
+                                        } catch (IllegalArgumentException e) {
+                                            builder.append('\\').append('N').append('{').append(name).append('}');
+                                        }
+                                        break;
+                                    } else if (isCodePoint(i)) {
+                                        name.append((char) i);
+                                    } else {
+                                        builder.append('\\').append('N').append('{').append(name);
+                                        if (i == quote) {
+                                            return builder.toString();
+                                        }
+                                        builder.append((char) i);
+                                        break;
+                                    }
+                                }
+                                continue;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                } else if (i == quote) {
+                    builder.append((char) i);
+                    continue;
                 }
+                builder.append('\\');
+                builder.append((char) i);
             } else if (i == '\\') {
                 escape = true;
+            } else if (i == quote) {
+                return builder.toString();
             }
-            builder.append((char) i);
         }
         throw new IOException("Non closed quoted string: " + builder);
+    }
+
+    @NotNull
+    protected Optional<String> readUnicode(int length) throws IOException {
+        mark(length);
+        int codePoint = 0;
+        for (int i = 0; i < length; i++) {
+            // Read and get value of hexadecimal character or codepoint
+            int c = read();
+            if (c == UNKNOWN_CHARACTER || (c = Character.digit(c, 16)) == UNKNOWN_CHARACTER) {
+                reset();
+                return Optional.empty();
+            }
+            codePoint = (codePoint << 4) + c;
+        }
+        if (Character.isValidCodePoint(codePoint)) {
+            return Optional.of(Character.toString(codePoint));
+        } else {
+            reset();
+            return Optional.empty();
+        }
     }
 
     /**
