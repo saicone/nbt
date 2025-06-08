@@ -190,6 +190,8 @@ public class TagConfig {
                         return mapper.buildAny(TagType.STRING, value);
                 }
             }
+        } else if (!isUnquoted(value)) {
+            return mapper.buildAny(TagType.STRING, value);
         }
 
         return TagReader.fromString(value, mapper);
@@ -213,5 +215,24 @@ public class TagConfig {
             }
         }
         return true;
+    }
+
+    private static boolean isUnquoted(@NotNull String s) {
+        for (int i = 0; i < s.length(); i++) {
+            if (!isUnquoted(s.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isUnquoted(int c) {
+        return c >= '0' && c <= '9'
+                || c >= 'A' && c <= 'Z'
+                || c >= 'a' && c <= 'z'
+                || c == '_' || c == '-'
+                || c == '.' || c == '+'
+                || c == '(' || c == ')'
+                || c == ' ';
     }
 }
