@@ -246,7 +246,7 @@ public class TagReader<T> extends Reader {
                     decimal = true;
                     continue;
                 }
-                return end;
+                return i;
             }
         }
         return end;
@@ -464,7 +464,6 @@ public class TagReader<T> extends Reader {
 
         TagType<?> type;
         boolean unsigned = false;
-        int end;
         if (version >= V1_21_5) {
             if (trim.startsWith("bool(") && trim.endsWith(")")) { // Parse boolean, case-insensitive
                 final String argument = trim.substring(5, trim.length() - 1).trim();
@@ -520,6 +519,7 @@ public class TagReader<T> extends Reader {
                 }
                 if (radix > 0) {
                     // Ignore suffixes
+                    final int end;
                     if (isIntegerSuffix(last)) {
                         if (isSignednessSuffix(tolast)) {
                             end = trim.length() - 2;
@@ -547,22 +547,22 @@ public class TagReader<T> extends Reader {
             if (type != null) {
                 if (type.isInteger() && isSignednessSuffix(tolast)) {
                     unsigned = tolast == 'u' || tolast == 'U';
-                    end = trim.length() - 2;
+                    trim = trim.substring(0, trim.length() - 2);
                 } else {
-                    end = trim.length() - 1;
+                    trim = trim.substring(0, trim.length() - 1);
                 }
             } else if (isSignednessSuffix(last)) {
                 unsigned = tolast == 'u' || tolast == 'U';
-                end = trim.length() - 1;
-            } else {
-                end = trim.length();
+                trim = trim.substring(0, trim.length() - 1);
             }
         } else {
             type = getType(last);
-            end = type == null ? trim.length() : trim.length() - 1;
+            if (type != null) {
+                trim = trim.substring(0, trim.length() - 1);
+            }
         }
 
-        final Boolean integer = isNumber(trim, 0, end);
+        final Boolean integer = isNumber(trim);
         if (integer == null || (!integer && unsigned) || (integer && type != null && type.isDecimal())) {
             return mapper.buildAny(TagType.STRING, unquoted);
         }
@@ -578,25 +578,25 @@ public class TagReader<T> extends Reader {
         switch (type.id()) {
             case Tag.BYTE:
                 if (unsigned) {
-                    return mapper.buildAny(TagType.BYTE, (byte) Integer.parseUnsignedInt(unquoted));
+                    return mapper.buildAny(TagType.BYTE, (byte) Integer.parseUnsignedInt(trim));
                 }
-                return mapper.buildAny(TagType.BYTE, Byte.parseByte(unquoted));
+                return mapper.buildAny(TagType.BYTE, Byte.parseByte(trim));
             case Tag.SHORT:
                 if (unsigned) {
-                    return mapper.buildAny(TagType.SHORT, (short) Integer.parseUnsignedInt(unquoted));
+                    return mapper.buildAny(TagType.SHORT, (short) Integer.parseUnsignedInt(trim));
                 }
-                return mapper.buildAny(TagType.SHORT, Short.parseShort(unquoted));
+                return mapper.buildAny(TagType.SHORT, Short.parseShort(trim));
             case Tag.INT:
                 if (unsigned) {
-                    return mapper.buildAny(TagType.INT, Integer.parseUnsignedInt(unquoted));
+                    return mapper.buildAny(TagType.INT, Integer.parseUnsignedInt(trim));
                 }
-                return mapper.buildAny(TagType.INT, Integer.parseInt(unquoted));
+                return mapper.buildAny(TagType.INT, Integer.parseInt(trim));
             case Tag.LONG:
-                return mapper.buildAny(TagType.LONG, Long.parseLong(unquoted));
+                return mapper.buildAny(TagType.LONG, Long.parseLong(trim));
             case Tag.FLOAT:
-                return mapper.buildAny(TagType.FLOAT, Float.parseFloat(unquoted));
+                return mapper.buildAny(TagType.FLOAT, Float.parseFloat(trim));
             case Tag.DOUBLE:
-                return mapper.buildAny(TagType.DOUBLE, Double.parseDouble(unquoted));
+                return mapper.buildAny(TagType.DOUBLE, Double.parseDouble(trim));
             default:
                 throw new IOException("Invalid unquoted tag type: " + type.name());
         }
@@ -777,6 +777,8 @@ public class TagReader<T> extends Reader {
                 escape = true;
             } else if (i == quote) {
                 return builder.toString();
+            } else {
+                builder.append((char) i);
             }
         }
         throw new IOException("Non closed quoted string: " + builder);
