@@ -220,6 +220,10 @@ public class TagType<T> {
         return (id >= Tag.END && id <= Tag.DOUBLE) || id == Tag.STRING;
     }
 
+    public boolean isInteger() {
+        return id == Tag.BYTE || id == Tag.SHORT || id == Tag.INT;
+    }
+
     /**
      * Check if the current tag type is a decimal number type.
      *

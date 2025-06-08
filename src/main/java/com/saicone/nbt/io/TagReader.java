@@ -11,12 +11,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
 /**
@@ -35,9 +36,6 @@ public class TagReader<T> extends Reader {
     public static final int V1_0 = 1;
 
     private static final int UNKNOWN_CHARACTER = -1;
-    private static final Set<Character> NUMBER_SUFFIX = Set.of('b', 'B', 's', 'S', 'l', 'L', 'f', 'F', 'd', 'D');
-    private static final Set<Character> INTEGER_SUFFIX = Set.of('b', 'B', 's', 'S', 'l', 'L');
-    private static final Set<Character> DECIMAL_SUFFIX = Set.of('f', 'F', 'd', 'D');
 
     private final Reader reader;
     private final TagMapper<T> mapper;
@@ -145,27 +143,73 @@ public class TagReader<T> extends Reader {
     }
 
     /**
-     * Check if the provided string is a number and also a decimal number.
+     * Check if the provided string is a integer number and also a decimal number.
      *
      * @param s the string to check.
-     * @return  true if the string is a number, false otherwise and null if it is a decimal number.
+     * @return  true for integer number, false for decimal number, null otherwise.
      */
     @Nullable
     protected Boolean isNumber(@NotNull String s) {
         if (s.isBlank()) {
             return false;
         }
-        boolean decimal = false;
-        for (char c : (isLeadingSign(s.charAt(0)) ? s.substring(1) : s).toCharArray()) {
-            if (!Character.isDigit(c)) {
-                if (!decimal && c == '.') {
-                    decimal = true;
-                    continue;
-                }
-                return false;
-            }
+        return isNumber(s, 0, s.length());
+    }
+
+    @Nullable
+    protected Boolean isNumber(@NotNull String s, int start, int end) {
+        final int result = checkInteger(s, start, end);
+        if (result == end) {
+            return true;
+        } else if (checkDecimal(s, result, end) == end) {
+            return false;
+        } else {
+            return null;
         }
-        return decimal ? null : true;
+    }
+
+    protected boolean isNumberSuffix(char c) {
+        return isIntegerSuffix(c) || isDecimalSuffix(c);
+    }
+
+    protected boolean isIntegerSuffix(char c) {
+        switch (c) {
+            case 'b':
+            case 'B':
+            case 's':
+            case 'S':
+            case 'i':
+            case 'I':
+            case 'l':
+            case 'L':
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    protected boolean isDecimalSuffix(char c) {
+        switch (c) {
+            case 'f':
+            case 'F':
+            case 'd':
+            case 'D':
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    protected boolean isSignednessSuffix(char c) {
+        switch (c) {
+            case 'u':
+            case 'U':
+            case 's':
+            case 'S':
+                return true;
+            default:
+                return false;
+        }
     }
 
     private boolean isCodePoint(int c) {
@@ -174,6 +218,38 @@ public class TagReader<T> extends Reader {
                 || c >= 'a' && c <= 'z'
                 || c == '_' || c == '-'
                 || c == ' ';
+    }
+
+    protected int checkInteger(@NotNull String s, int start, int end) {
+        if (isLeadingSign(s.charAt(start))) {
+            start++;
+        }
+        for (int i = start; i < end; i++) {
+            if (!Character.isDigit(s.charAt(i))) {
+                return i;
+            }
+        }
+        return end;
+    }
+
+    protected int checkDecimal(@NotNull String s, int start, int end) {
+        boolean decimal = false;
+        for (int i = start; i < end; i++) {
+            final char c = s.charAt(i);
+            if (!Character.isDigit(c)) {
+                if (decimal) {
+                    // Check for E notation
+                    if ((c == 'e' || c == 'E') && version >= V1_21_5 && i + 1 < end) {
+                        return checkInteger(s, i + 1, end);
+                    }
+                } else if (c == '.') {
+                    decimal = true;
+                    continue;
+                }
+                return end;
+            }
+        }
+        return end;
     }
 
     /**
@@ -365,53 +441,165 @@ public class TagReader<T> extends Reader {
      */
     @NotNull
     protected <A extends T> A readUnquotedTag(int first) throws IOException {
-        String unquoted = readUnquoted(first);
+        final String unquoted = readUnquoted(first);
+        // Early empty string check
+        if (unquoted.isBlank()) {
+            return mapper.buildAny(TagType.STRING, unquoted);
+        }
 
-        final char last = unquoted.charAt(unquoted.length() - 1);
-
-        final Boolean result;
-        final TagType<?> type;
-        if (unquoted.length() > 1 && NUMBER_SUFFIX.contains(last)) { // Number with suffix
-            final String s = unquoted.substring(0, unquoted.length() - 1);
-            result = isNumber(s);
-            if (!Boolean.FALSE.equals(result)) {
-                unquoted = s;
-                type = getType(last);
-            } else {
-                type = null;
-            }
-        } else if ((result = isNumber(unquoted)) == null) { // Decimal
-            type = TagType.DOUBLE;
-        } else if (result) { // Integer
-            type = TagType.INT;
-        } else if (unquoted.equals("true")) { // boolean
+        String trim = unquoted.trim();
+        // Early boolean check, case-sensitive
+        if (trim.equals("true")) {
             return mapper.buildAny(TagType.BYTE, (byte) 1);
-        } else if (unquoted.equals("false")) { // boolean
+        } else if (trim.equals("false")) {
             return mapper.buildAny(TagType.BYTE, (byte) 0);
-        } else {
-            type = null;
         }
 
-        if (type != null) {
-            if (result == null && !type.isDecimal()) {
-                throw new IOException("Cannot read decimal number '" + unquoted + "' as " + type.prettyName());
+        final char last = trim.charAt(trim.length() - 1);
+        final char tolast = trim.length() > 1 ? trim.charAt(trim.length() - 2) : '\0';
+        // Early invalid number check
+        if (trim.charAt(0) == '_' || last == '_') {
+            return mapper.buildAny(TagType.STRING, unquoted);
+        }
+
+        TagType<?> type;
+        boolean unsigned = false;
+        int end;
+        if (version >= V1_21_5) {
+            if (trim.startsWith("bool(") && trim.endsWith(")")) { // Parse boolean, case-insensitive
+                final String argument = trim.substring(5, trim.length() - 1).trim();
+                if (argument.equalsIgnoreCase("true")) {
+                    return mapper.buildAny(TagType.BYTE, (byte) 1);
+                } else if (argument.equalsIgnoreCase("false")) {
+                    return mapper.buildAny(TagType.BYTE, (byte) 0);
+                } else {
+                    try {
+                        if (Integer.parseInt(argument) == 0) {
+                            return mapper.buildAny(TagType.BYTE, (byte) 0);
+                        } else {
+                            return mapper.buildAny(TagType.BYTE, (byte) 1);
+                        }
+                    } catch (NumberFormatException e) {
+                        throw new IOException("Invalid boolean value: '" + argument + "'");
+                    }
+                }
+            } else if (trim.startsWith("uuid(") && trim.endsWith(")")) { // Parse unique id
+                final String argument = trim.substring(5, trim.length() - 1).trim();
+                try {
+                    // Test UUID
+                    UUID.fromString(argument);
+                    // Convert UUID into int[]
+                    final int[] array = new int[4];
+                    final String rawUUID = argument.replace("-", "");
+                    for (int i = 0; i < 32; i = i + 8) {
+                        array[i / 8] = new BigInteger(rawUUID.substring(i, i + 8), 16).intValue();
+                    }
+                    return mapper.buildAny(TagType.INT_ARRAY, array);
+                } catch (Throwable e) {
+                    throw new IOException("Invalid UUID value: '" + argument + "'");
+                }
+            } else if (unquoted.indexOf('(') >= 0 && unquoted.indexOf(')') >= 0) { // Check for non-unquoted characters
+                throw new IOException("Invalid operation: '" + unquoted + "'");
+            } else if (trim.charAt(0) == '0' && trim.length() >= 3) { // Normalize integer number
+                // Extract radix by prefix
+                final int radix;
+                switch (trim.charAt(1)) {
+                    case 'x':
+                    case 'X':
+                        // hex
+                        radix = 16;
+                        break;
+                    case 'b':
+                    case 'B':
+                        // binary
+                        radix = 2;
+                        break;
+                    default:
+                        radix = 0;
+                        break;
+                }
+                if (radix > 0) {
+                    // Ignore suffixes
+                    if (isIntegerSuffix(last)) {
+                        if (isSignednessSuffix(tolast)) {
+                            end = trim.length() - 2;
+                        } else {
+                            end = trim.length() - 1;
+                        }
+                    } else if (isSignednessSuffix(last)) {
+                        end = trim.length() - 1;
+                    } else {
+                        end = trim.length();
+                    }
+                    // Parse integer number
+                    if (end > 3) {
+                        try {
+                            final long number = Long.parseLong(trim.substring(2, end).replace('_', '\0'), radix);
+                            trim = number + trim.substring(end);
+                        } catch (NumberFormatException ignored) { }
+                    }
+                }
             }
-            switch (type.id()) {
-                case Tag.BYTE:
-                    return mapper.buildAny(TagType.BYTE, Byte.parseByte(unquoted));
-                case Tag.SHORT:
-                    return mapper.buildAny(TagType.SHORT, Short.parseShort(unquoted));
-                case Tag.INT:
-                    return mapper.buildAny(TagType.INT, Integer.parseInt(unquoted));
-                case Tag.LONG:
-                    return mapper.buildAny(TagType.LONG, Long.parseLong(unquoted));
-                case Tag.FLOAT:
-                    return mapper.buildAny(TagType.FLOAT, Float.parseFloat(unquoted));
-                case Tag.DOUBLE:
-                    return mapper.buildAny(TagType.DOUBLE, Double.parseDouble(unquoted));
+
+            trim = trim.replace('_', '\0');
+
+            type = getType(last);
+            if (type != null) {
+                if (type.isInteger() && isSignednessSuffix(tolast)) {
+                    unsigned = tolast == 'u' || tolast == 'U';
+                    end = trim.length() - 2;
+                } else {
+                    end = trim.length() - 1;
+                }
+            } else if (isSignednessSuffix(last)) {
+                unsigned = tolast == 'u' || tolast == 'U';
+                end = trim.length() - 1;
+            } else {
+                end = trim.length();
+            }
+        } else {
+            type = getType(last);
+            end = type == null ? trim.length() : trim.length() - 1;
+        }
+
+        final Boolean integer = isNumber(trim, 0, end);
+        if (integer == null || (!integer && unsigned) || (integer && type != null && type.isDecimal())) {
+            return mapper.buildAny(TagType.STRING, unquoted);
+        }
+
+        if (type == null) {
+            if (integer) {
+                type = TagType.INT;
+            } else {
+                type = TagType.DOUBLE;
             }
         }
-        return mapper.buildAny(TagType.STRING, unquoted);
+
+        switch (type.id()) {
+            case Tag.BYTE:
+                if (unsigned) {
+                    return mapper.buildAny(TagType.BYTE, (byte) Integer.parseUnsignedInt(unquoted));
+                }
+                return mapper.buildAny(TagType.BYTE, Byte.parseByte(unquoted));
+            case Tag.SHORT:
+                if (unsigned) {
+                    return mapper.buildAny(TagType.SHORT, (short) Integer.parseUnsignedInt(unquoted));
+                }
+                return mapper.buildAny(TagType.SHORT, Short.parseShort(unquoted));
+            case Tag.INT:
+                if (unsigned) {
+                    return mapper.buildAny(TagType.INT, Integer.parseUnsignedInt(unquoted));
+                }
+                return mapper.buildAny(TagType.INT, Integer.parseInt(unquoted));
+            case Tag.LONG:
+                return mapper.buildAny(TagType.LONG, Long.parseLong(unquoted));
+            case Tag.FLOAT:
+                return mapper.buildAny(TagType.FLOAT, Float.parseFloat(unquoted));
+            case Tag.DOUBLE:
+                return mapper.buildAny(TagType.DOUBLE, Double.parseDouble(unquoted));
+            default:
+                throw new IOException("Invalid unquoted tag type: " + type.name());
+        }
     }
 
     /**
@@ -443,8 +631,8 @@ public class TagReader<T> extends Reader {
         builder.append((char) first);
         mark(1);
         int i;
-        while ((i = read()) != -1) {
-            if (isUnquoted(i)) {
+        while ((i = read()) != UNKNOWN_CHARACTER) {
+            if (isUnquoted(i) || ((i == '(' || i == ')') && version >= V1_21_5)) {
                 mark(1);
                 builder.append((char) i);
             } else {
@@ -828,6 +1016,20 @@ public class TagReader<T> extends Reader {
         if (i != c) {
             reset();
             return false;
+        }
+        return true;
+    }
+
+    public boolean skip(@NotNull String s) throws IOException {
+        return skip(s, 0);
+    }
+
+    public boolean skip(@NotNull String s, int start) throws IOException {
+        mark(s.length());
+        for (int i = start; i < s.length(); i++) {
+            if (read() != s.charAt(i)) {
+                return false;
+            }
         }
         return true;
     }
