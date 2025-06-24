@@ -164,7 +164,20 @@ public class AdventureTagMapper implements TagMapper<BinaryTag> {
     }
 
     @Override
+    public byte typeId(@Nullable BinaryTag tag) {
+        if (tag == null) {
+            return Tag.END;
+        }
+        return tag.type().id();
+    }
+
+    @Override
     public @NotNull <A> TagType<A> listType(@NotNull BinaryTag tag) {
         return TagType.getType(((ListBinaryTag) tag).elementType().id());
+    }
+
+    @Override
+    public byte listTypeId(@NotNull BinaryTag tag) {
+        return ((ListBinaryTag) tag).elementType().id();
     }
 }
