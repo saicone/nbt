@@ -104,6 +104,9 @@ tasks.register('allJavadoc', Javadoc) {
         // Adventure mapper
         links 'https://javadoc.io/doc/net.kyori/adventure-nbt/latest/'
 
+        // Bungeecord mapper
+        links 'https://javadoc.io/doc/net.md-5/bungeecord-nbt/latest/'
+
         // jo-nbt mapper
         links 'https://javadoc.io/doc/se.llbit/jo-nbt/latest/'
 

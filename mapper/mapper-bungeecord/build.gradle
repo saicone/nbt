@@ -1,0 +1,14 @@
+repositories {
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'https://libraries.minecraft.net' }
+}
+
+dependencies {
+    compileOnly 'net.md-5:bungeecord-nbt:1.21-R0.4-SNAPSHOT'
+}
+
+javadoc {
+    options {
+        links 'https://javadoc.io/doc/net.md-5/bungeecord-nbt/latest/'
+    }
+}

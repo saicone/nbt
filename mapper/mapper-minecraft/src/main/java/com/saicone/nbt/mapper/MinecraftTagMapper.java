@@ -187,7 +187,7 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
     @Override
     public byte typeId(@Nullable Tag tag) {
         if (tag == null) {
-            return com.saicone.nbt.Tag.END;
+            return Tag.TAG_END;
         }
         return tag.getId();
     }
