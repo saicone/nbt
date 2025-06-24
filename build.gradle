@@ -106,6 +106,9 @@ tasks.register('allJavadoc', Javadoc) {
 
         // jo-nbt mapper
         links 'https://javadoc.io/doc/se.llbit/jo-nbt/latest/'
+
+        // ViaVersion mapper
+        links 'https://jd.viaversion.com/'
     }
     destinationDir = file(project.layout.buildDirectory.dir('docs/all-javadoc'))
 }

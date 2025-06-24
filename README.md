@@ -76,7 +76,7 @@ This library contains the following artifacts:
 * `mapper-adventure` - NBT mapper for [adventure nbt](https://github.com/KyoriPowered/adventure) objects, can be used for [Velocity](https://github.com/PaperMC/Velocity) and [Minestom](https://github.com/Minestom/Minestom).
 * `mapper-bukkit` - NBT mapper for bukkit-based projects ([SpigotMC](https://www.spigotmc.org/), [PaperMC](https://papermc.io/)... etc).
 * `mapper-cloudburst` - NBT mapper for [CloudburstMC nbt](https://github.com/CloudburstMC/NBT) objects.
-* `mapper-jo-nbt` - NBT mapper for [jo-nbt](https://github.com/llbit/jo-nbt) objects, can be used for [Bungeecord](https://github.com/SpigotMC/BungeeCord).
+* `mapper-jo-nbt` - NBT mapper for [jo-nbt](https://github.com/llbit/jo-nbt) objects, can be used for older versions of [Bungeecord](https://github.com/SpigotMC/BungeeCord).
 * `mapper-minecraft` - NBT mapper for Minecraft code with Mojang mappings, can be used for mods and [PaperMC](https://papermc.io/) +1.20.5.
 * `mapper-nukkit` - NBT mapper for [Nukkit](https://github.com/CloudburstMC/Nukkit) nbt objects.
 * `mapper-vianbt` - NBT mapper for [ViaNBT](https://github.com/ViaVersion/ViaNBT) objects, can be used along with [ViaVersion](https://github.com/ViaVersion) projects.

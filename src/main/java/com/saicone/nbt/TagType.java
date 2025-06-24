@@ -220,6 +220,11 @@ public class TagType<T> {
         return (id >= Tag.END && id <= Tag.DOUBLE) || id == Tag.STRING;
     }
 
+    /**
+     * Check if the current tag type is a number value object type.
+     *
+     * @return true if this a number value object representation.
+     */
     public boolean isInteger() {
         return id == Tag.BYTE || id == Tag.SHORT || id == Tag.INT;
     }
