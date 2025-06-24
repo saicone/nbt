@@ -1,3 +1,10 @@
+pluginManagement {
+    repositories {
+        maven { url 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+    }
+}
+
 rootProject.name = 'nbt'
 
 include(
@@ -7,6 +14,7 @@ include(
         ':mapper:mapper-cloudburst',
         ':mapper:mapper-jo-nbt',
         ':mapper:mapper-minecraft',
+        ':mapper:mapper-minecraft-yarn',
         ':mapper:mapper-nukkit',
         ':mapper:mapper-vianbt'
 )

@@ -1,0 +1,23 @@
+plugins {
+    id 'fabric-loom' version '1.10-SNAPSHOT'
+}
+
+loom {
+    splitEnvironmentSourceSets()
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.6'
+    mappings 'net.fabricmc:yarn:1.21.6+build.1:v2'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+javadoc {
+    options {
+        links 'https://maven.fabricmc.net/docs/yarn-1.21.6+build.1/'
+    }
+}

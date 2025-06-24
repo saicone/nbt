@@ -112,6 +112,9 @@ tasks.register('allJavadoc', Javadoc) {
 
         // ViaVersion mapper
         links 'https://jd.viaversion.com/'
+
+        // yarn mapper
+        links 'https://maven.fabricmc.net/docs/yarn-1.21.6+build.1/'
     }
     destinationDir = file(project.layout.buildDirectory.dir('docs/all-javadoc'))
 }
