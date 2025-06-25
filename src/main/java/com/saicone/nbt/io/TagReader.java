@@ -30,9 +30,22 @@ import java.util.function.Function;
  */
 public class TagReader<T> extends Reader {
 
+    /**
+     * Latest supported version constant.
+     */
     public static final int LATEST = 3;
+    /**
+     * MC 1.21.5 specification, SNBT format got enhanced with extensive Number tag declaration,
+     * escape sequences and uuid / boolean operations.
+     */
     public static final int V1_21_5 = 3;
+    /**
+     * MC 1.14 specification, added the option to use single quotes to declare quoted strings.
+     */
     public static final int V1_14 = 2;
+    /**
+     * Initial NBT specification, the older known format.
+     */
     public static final int V1_0 = 1;
 
     private static final int UNKNOWN_CHARACTER = -1;
@@ -101,6 +114,13 @@ public class TagReader<T> extends Reader {
         this.mapper = mapper;
     }
 
+    /**
+     * Set the version specification to use while reading.<br>
+     * This will allow or deny the reader to parse newer Minecraft SNBT inputs.
+     *
+     * @param version the version specification.
+     * @return        the reader itself.
+     */
     @NotNull
     @Contract("_ -> this")
     public TagReader<T> version(int version) {
@@ -156,6 +176,14 @@ public class TagReader<T> extends Reader {
         return isNumber(s, 0, s.length());
     }
 
+    /**
+     * Check if the provided string is a integer number and also a decimal number.
+     *
+     * @param s     the string to check.
+     * @param start the start index to check, inclusive.
+     * @param end   the end index to check, exclusive.
+     * @return      true for integer number, false for decimal number, null otherwise.
+     */
     @Nullable
     protected Boolean isNumber(@NotNull String s, int start, int end) {
         final int result = checkInteger(s, start, end);
@@ -168,10 +196,22 @@ public class TagReader<T> extends Reader {
         }
     }
 
+    /**
+     * Check if the provided character is a number suffix.
+     *
+     * @param c the character to check.
+     * @return  true if the character is a number suffix.
+     */
     protected boolean isNumberSuffix(char c) {
         return isIntegerSuffix(c) || isDecimalSuffix(c);
     }
 
+    /**
+     * Check if the provided character is an integer suffix.
+     *
+     * @param c the character to check.
+     * @return  true if the character is an integer suffix.
+     */
     protected boolean isIntegerSuffix(char c) {
         switch (c) {
             case 'b':
@@ -188,6 +228,12 @@ public class TagReader<T> extends Reader {
         }
     }
 
+    /**
+     * Check if the provided character is a decimal suffix.
+     *
+     * @param c the character to check.
+     * @return  true if the character is a decimal suffix.
+     */
     protected boolean isDecimalSuffix(char c) {
         switch (c) {
             case 'f':
@@ -200,6 +246,12 @@ public class TagReader<T> extends Reader {
         }
     }
 
+    /**
+     * Check if the provided character is a signed declaration suffix.
+     *
+     * @param c the character to check.
+     * @return  true if the character is a signed declaration suffix.
+     */
     protected boolean isSignednessSuffix(char c) {
         switch (c) {
             case 'u':
@@ -220,6 +272,14 @@ public class TagReader<T> extends Reader {
                 || c == ' ';
     }
 
+    /**
+     * Check the provided string to be an integer number until end.
+     *
+     * @param s     the string to check.
+     * @param start the start index to check, inclusive.
+     * @param end   the end index to check, exclusive.
+     * @return      the latest index that was detected as integer, exclusive value.
+     */
     protected int checkInteger(@NotNull String s, int start, int end) {
         if (isLeadingSign(s.charAt(start))) {
             start++;
@@ -232,6 +292,15 @@ public class TagReader<T> extends Reader {
         return end;
     }
 
+    /**
+     * Check the provided string to be a decimal number until end.<br>
+     * This method is also compatible with E notation.
+     *
+     * @param s     the string to check.
+     * @param start the start index to check, inclusive.
+     * @param end   the end index to check, exclusive.
+     * @return      the latest index that was detected as decimal, exclusive value.
+     */
     protected int checkDecimal(@NotNull String s, int start, int end) {
         boolean decimal = false;
         for (int i = start; i < end; i++) {
@@ -673,7 +742,8 @@ public class TagReader<T> extends Reader {
     }
 
     /**
-     * Read quoted value.
+     * Read quoted value.<br>
+     * This method is compatible with escaped characters.
      *
      * @param quote the closing quote char.
      * @return      a string.
@@ -784,6 +854,13 @@ public class TagReader<T> extends Reader {
         throw new IOException("Non closed quoted string: " + builder);
     }
 
+    /**
+     * Read Unicode value with defined length in bytes.
+     *
+     * @param length the max number o bytes that Unicode value has.
+     * @return       an optional string, empty if not valid Unicode text was found.
+     * @throws IOException if any I/O error occurs.
+     */
     @NotNull
     protected Optional<String> readUnicode(int length) throws IOException {
         mark(length);
@@ -1022,14 +1099,30 @@ public class TagReader<T> extends Reader {
         return true;
     }
 
+    /**
+     * Skip defined string.
+     *
+     * @param s the string to skip.
+     * @return  true if the string was skipped.
+     * @throws IOException if any I/O error occurs.
+     */
     public boolean skip(@NotNull String s) throws IOException {
         return skip(s, 0);
     }
 
+    /**
+     * Skip defined string.
+     *
+     * @param s     the string to skip.
+     * @param start the start index to read provided string.
+     * @return      true if the string was skipped.
+     * @throws IOException if any I/O error occurs.
+     */
     public boolean skip(@NotNull String s, int start) throws IOException {
-        mark(s.length());
+        mark(s.length() - start);
         for (int i = start; i < s.length(); i++) {
             if (read() != s.charAt(i)) {
+                reset();
                 return false;
             }
         }

@@ -86,14 +86,18 @@ def javadocProjects= [
         ':',
         ':mapper:mapper-adventure',
         ':mapper:mapper-bukkit',
+        ':mapper:mapper-bungeecord',
         ':mapper:mapper-cloudburst',
         ':mapper:mapper-jo-nbt',
         ':mapper:mapper-minecraft',
+        ':mapper:mapper-minecraft-yarn',
         ':mapper:mapper-nukkit',
+        ':mapper:mapper-packetevents',
         ':mapper:mapper-vianbt'
 ]
 
 tasks.register('allJavadoc', Javadoc) {
+    group = 'documentation'
     source javadocProjects.collect { project(it).sourceSets.main.allJava }
     classpath = files(javadocProjects.collect { project(it).sourceSets.main.compileClasspath })
     options {
