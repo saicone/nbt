@@ -16,5 +16,6 @@ include(
         ':mapper:mapper-minecraft',
         ':mapper:mapper-minecraft-yarn',
         ':mapper:mapper-nukkit',
+        ':mapper:mapper-packetevents',
         ':mapper:mapper-vianbt'
 )

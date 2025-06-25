@@ -81,6 +81,7 @@ This library contains the following artifacts:
 * `mapper-minecraft` - NBT mapper for Minecraft code with Mojang mappings, can be used for mods and [PaperMC](https://papermc.io/) +1.20.5.
 * `mapper-minecraft-yarn` - NBT mapper for [yarn](https://github.com/FabricMC/yarn) mapped Minecraft code, can be used for [Fabric](https://github.com/FabricMC/fabric) and [Quilt](https://quiltmc.org/) mods.
 * `mapper-nukkit` - NBT mapper for [Nukkit](https://github.com/CloudburstMC/Nukkit) nbt objects.
+* `mapper-packetevents` - NBT mapper for [PacketEvents](https://github.com/retrooper/packetevents) nbt objects.
 * `mapper-vianbt` - NBT mapper for [ViaNBT](https://github.com/ViaVersion/ViaNBT) objects, can be used along with [ViaVersion](https://github.com/ViaVersion) projects.
 
 <details>
