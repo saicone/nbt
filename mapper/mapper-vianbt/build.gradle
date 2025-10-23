@@ -3,7 +3,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly('com.viaversion:nbt:5.1.1') { transitive = false }
+    compileOnly('com.viaversion:nbt:5.1.2') { transitive = false }
 }
 
 javadoc {

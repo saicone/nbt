@@ -20,7 +20,7 @@ allprojects {
     }
 
     dependencies {
-        compileOnly 'com.google.code.gson:gson:2.13.1'
+        compileOnly 'com.google.code.gson:gson:2.13.2'
         compileOnly 'org.jetbrains:annotations:26.0.2'
     }
 
@@ -62,10 +62,10 @@ subprojects {
 }
 
 dependencies {
-    testImplementation(platform('org.junit:junit-bom:5.12.2'))
+    testImplementation(platform('org.junit:junit-bom:5.14.0'))
     testImplementation('org.junit.jupiter:junit-jupiter')
     testRuntimeOnly('org.junit.platform:junit-platform-launcher')
-    testImplementation('com.google.code.gson:gson:2.13.1')
+    testImplementation('com.google.code.gson:gson:2.13.2')
 }
 
 test {
@@ -115,7 +115,7 @@ tasks.register('allJavadoc', Javadoc) {
         links 'https://javadoc.io/doc/se.llbit/jo-nbt/latest/'
 
         // Minecraft yarn mapper
-        links 'https://maven.fabricmc.net/docs/yarn-1.21.6+build.1/'
+        links 'https://maven.fabricmc.net/docs/yarn-1.21.10+build.2/'
 
         // PacketEvents mapper
         links 'https://javadocs.packetevents.com/'

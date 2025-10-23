@@ -1,9 +1,10 @@
 repositories {
     maven { url 'https://repo.codemc.io/repository/maven-releases/' }
+    maven { url 'https://repo.codemc.io/repository/maven-snapshots/' }
 }
 
 dependencies {
-    compileOnly 'com.github.retrooper:packetevents-api:2.8.0'
+    compileOnly 'com.github.retrooper:packetevents-api:2.10.0'
 }
 
 javadoc {
