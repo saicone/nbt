@@ -1,5 +1,5 @@
 repositories {
-    maven { url 'https://repo.viaversion.com' }
+    maven { url = uri('https://repo.viaversion.com') }
 }
 
 dependencies {
