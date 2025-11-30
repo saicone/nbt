@@ -1,3 +1,26 @@
+/*
+ * This file is part of saicone/gama, licensed under the MIT License
+ *
+ * Copyright (c) Rubenicos
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.saicone.nbt.util.zip;
 
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +42,7 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.zip.Deflater;
@@ -41,6 +65,37 @@ public abstract class ZipFormat {
             StandardOpenOption.TRUNCATE_EXISTING,
             StandardOpenOption.WRITE
     };
+    private static final ZipFormat EMPTY = new ZipFormat() {
+        @Override
+        public boolean isFormatted(int[] bytes) {
+            return true;
+        }
+
+        @Override
+        protected int getByteSize() {
+            return 0;
+        }
+
+        @Override
+        public @NotNull InputStream newInputStream(@NotNull InputStream input) {
+            return input;
+        }
+
+        @Override
+        public @NotNull OutputStream newOutputStream(@NotNull OutputStream output) {
+            return output;
+        }
+    };
+
+    /**
+     * Get empty zip format implementation, that doesn't perform any compression.
+     *
+     * @return a zip format implementation.
+     */
+    @NotNull
+    public static ZipFormat empty() {
+        return EMPTY;
+    }
 
     /**
      * Get gzip compression algorithm implementation.
@@ -70,6 +125,69 @@ public abstract class ZipFormat {
     @NotNull
     public static Lz4 lz4() {
         return Lz4.INSTANCE;
+    }
+
+    /**
+     * Get a zip format implementation, based on provided file.<br>
+     * If the file doesn't contain any compression format, an {@link ZipFormat#empty()} instance will be return.
+     *
+     * @param file the file to check
+     * @return     a zip format implementation.
+     * @throws IOException if any I/O error occurs.
+     */
+    @NotNull
+    public static ZipFormat of(@NotNull File file) throws IOException {
+        if (gzip().isFormatted(file)) {
+            return gzip();
+        } else if (zlib().isFormatted(file)) {
+            return zlib();
+        } else if (lz4().isLoaded() && lz4().isFormatted(file)) {
+            return lz4();
+        } else {
+            return empty();
+        }
+    }
+
+    /**
+     * Get a zip format implementation, based on provided path.<br>
+     * If the path doesn't contain any compression format, an {@link ZipFormat#empty()} instance will be return.
+     *
+     * @param path the path to check
+     * @return     a zip format implementation.
+     * @throws IOException if any I/O error occurs.
+     */
+    @NotNull
+    public static ZipFormat of(@NotNull Path path) throws IOException {
+        if (gzip().isFormatted(path)) {
+            return gzip();
+        } else if (zlib().isFormatted(path)) {
+            return zlib();
+        } else if (lz4().isLoaded() && lz4().isFormatted(path)) {
+            return lz4();
+        } else {
+            return empty();
+        }
+    }
+
+    /**
+     * Get a zip format implementation, based on provided {@link InputStream}.<br>
+     * If the {@link InputStream} doesn't contain any compression format, an {@link ZipFormat#empty()} instance will be return.
+     *
+     * @param input the path to check
+     * @return      a zip format implementation.
+     * @throws IOException if any I/O error occurs.
+     */
+    @NotNull
+    public static ZipFormat of(@NotNull InputStream input) throws IOException {
+        if (gzip().isFormatted(input)) {
+            return gzip();
+        } else if (zlib().isFormatted(input)) {
+            return zlib();
+        } else if (lz4().isLoaded() && lz4().isFormatted(input)) {
+            return lz4();
+        } else {
+            return empty();
+        }
     }
 
     /**
@@ -123,7 +241,7 @@ public abstract class ZipFormat {
     public abstract boolean isFormatted(int[] bytes);
 
     /**
-     * Get size of bytes that the current algorithm implementation have.
+     * Get size of header bytes that the current algorithm implementation have.
      *
      * @return a size of bytes.
      */
@@ -335,12 +453,14 @@ public abstract class ZipFormat {
          */
         public static final Zlib INSTANCE = new Zlib();
 
-        private static final Map<Integer, Integer> LEVELS = Map.of(
-                0x7801, Deflater.NO_COMPRESSION,
-                0x785E, Deflater.BEST_SPEED,
-                0x789C, Deflater.DEFAULT_COMPRESSION,
-                0x78DA, Deflater.BEST_COMPRESSION
-        );
+        private static final Map<Integer, Integer> LEVELS = new HashMap<>();
+
+        static {
+            LEVELS.put(0x7801, Deflater.NO_COMPRESSION);
+            LEVELS.put(0x785E, Deflater.BEST_SPEED);
+            LEVELS.put(0x789C, Deflater.DEFAULT_COMPRESSION);
+            LEVELS.put(0x78DA, Deflater.BEST_COMPRESSION);
+        }
 
         /**
          * Constructs a zlib format.
