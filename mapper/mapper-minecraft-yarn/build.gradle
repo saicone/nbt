@@ -8,7 +8,7 @@ loom {
 
 dependencies {
     minecraft 'com.mojang:minecraft:1.21.10'
-    mappings 'net.fabricmc:yarn:1.21.10+build.2:v2'
+    mappings 'net.fabricmc:yarn:1.21.10+build.3:v2'
 }
 
 java {
@@ -18,6 +18,6 @@ java {
 
 javadoc {
     options {
-        links 'https://maven.fabricmc.net/docs/yarn-1.21.10+build.2/'
+        links 'https://maven.fabricmc.net/docs/yarn-1.21.10+build.3/'
     }
 }

@@ -4,7 +4,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.github.retrooper:packetevents-api:2.10.0'
+    compileOnly 'com.github.retrooper:packetevents-api:2.10.1'
 }
 
 javadoc {
