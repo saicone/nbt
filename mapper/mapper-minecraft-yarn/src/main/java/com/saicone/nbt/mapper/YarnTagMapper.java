@@ -40,14 +40,22 @@ public class YarnTagMapper implements TagMapper<NbtElement> {
      */
     public static final YarnTagMapper INSTANCE = new YarnTagMapper();
 
+    private static final MethodHandle STRING_VALUE;
     private static final MethodHandle LIST_VALUE;
     private static final MethodHandle COMPOUND_ENTRIES;
 
     static {
+        MethodHandle stringValue = null;
         MethodHandle listValue = null;
         MethodHandle compoundTags = null;
         try {
             final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
+            for (Field field : NbtString.class.getDeclaredFields()) {
+                if (field.getType() == String.class) {
+                    stringValue = lookup.unreflectGetter(field);
+                }
+            }
 
             final Field listField = NbtList.class.getDeclaredField("value");
             listField.setAccessible(true);
@@ -59,6 +67,7 @@ public class YarnTagMapper implements TagMapper<NbtElement> {
         } catch (Throwable t) {
             t.printStackTrace();
         }
+        STRING_VALUE = stringValue;
         LIST_VALUE = listValue;
         COMPOUND_ENTRIES = compoundTags;
     }
@@ -132,7 +141,15 @@ public class YarnTagMapper implements TagMapper<NbtElement> {
             case NbtElement.BYTE_ARRAY_TYPE:
                 return ((NbtByteArray) element).getByteArray();
             case NbtElement.STRING_TYPE:
-                return ((NbtString) element).value();
+                try {
+                    return ((NbtString) element).value();
+                } catch (Throwable ignored) {
+                    try {
+                        return STRING_VALUE.invoke(element);
+                    } catch (Throwable t) {
+                        throw new RuntimeException(t);
+                    }
+                }
             case NbtElement.LIST_TYPE:
                 try {
                     return LIST_VALUE.invoke(element);
@@ -165,7 +182,11 @@ public class YarnTagMapper implements TagMapper<NbtElement> {
 
     @Override
     public int size(@Nullable NbtElement element) {
-        return element == null ? NbtEnd.INSTANCE.getSizeInBytes() : element.getSizeInBytes();
+        try {
+            return element == null ? NbtEnd.INSTANCE.getSizeInBytes() : element.getSizeInBytes();
+        } catch (Throwable t) {
+            return TagMapper.super.size(element);
+        }
     }
 
     @Override
