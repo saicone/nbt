@@ -53,6 +53,7 @@ public class YarnTagMapper implements TagMapper<NbtElement> {
 
             for (Field field : NbtString.class.getDeclaredFields()) {
                 if (field.getType() == String.class) {
+                    field.setAccessible(true);
                     stringValue = lookup.unreflectGetter(field);
                 }
             }
