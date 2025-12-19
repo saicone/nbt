@@ -33,12 +33,12 @@ import java.util.Map;
  *
  * @author Rubenicos
  */
-public class YarnTagMapper implements TagMapper<NbtElement> {
+public class MinecraftYarnTagMapper implements TagMapper<NbtElement> {
 
     /**
-     * {@link YarnTagMapper} public instance.
+     * {@link MinecraftYarnTagMapper} public instance.
      */
-    public static final YarnTagMapper INSTANCE = new YarnTagMapper();
+    public static final MinecraftYarnTagMapper INSTANCE = new MinecraftYarnTagMapper();
 
     private static final MethodHandle STRING_VALUE;
     private static final MethodHandle LIST_VALUE;
