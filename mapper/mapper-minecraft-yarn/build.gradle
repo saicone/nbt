@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.11-SNAPSHOT'
+    id 'fabric-loom' version '1.14-SNAPSHOT'
 }
 
 loom {
@@ -7,8 +7,8 @@ loom {
 }
 
 dependencies {
-    minecraft 'com.mojang:minecraft:1.21.10'
-    mappings 'net.fabricmc:yarn:1.21.10+build.3:v2'
+    minecraft 'com.mojang:minecraft:1.21.11'
+    mappings 'net.fabricmc:yarn:1.21.11+build.3:v2'
 }
 
 java {
@@ -18,6 +18,6 @@ java {
 
 javadoc {
     options {
-        links 'https://maven.fabricmc.net/docs/yarn-1.21.10+build.3/'
+        links 'https://maven.fabricmc.net/docs/yarn-1.21.11+build.3/'
     }
 }
