@@ -94,7 +94,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.saicone.nbt:nbt:1.0.2'
+    implementation 'com.saicone.nbt:nbt:1.0.3'
 }
 ```
 
@@ -109,7 +109,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.saicone.nbt:nbt:1.0.2")
+    implementation("com.saicone.nbt:nbt:1.0.3")
 }
 ```
 
@@ -130,7 +130,7 @@ dependencies {
     <dependency>
         <groupId>com.saicone.nbt</groupId>
         <artifactId>nbt</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
         <scope>compile</scope>
     </dependency>
 </dependencies>
