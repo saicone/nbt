@@ -80,7 +80,7 @@ This library contains the following artifacts:
 * `mapper-jo-nbt` - NBT mapper for [jo-nbt](https://github.com/llbit/jo-nbt) objects, can be used for older versions of [Bungeecord](https://github.com/SpigotMC/BungeeCord).
 * `mapper-minecraft117` - NBT mapper for Minecraft +1.17 with Mojang mappings, can be used for mods and [PaperMC](https://papermc.io/).
 * `mapper-minecraft1215` - NBT mapper for Minecraft +1.21.5 with Mojang mappings, can be used for mods and [PaperMC](https://papermc.io/).
-* `mapper-minecraft-yarn` - NBT mapper for [yarn](https://github.com/FabricMC/yarn) mapped Minecraft code, can be used for [Fabric](https://github.com/FabricMC/fabric) and [Quilt](https://quiltmc.org/) mods.
+* `mapper-minecraft-yarn` - NBT mapper for [yarn](https://github.com/FabricMC/yarn) mapped Minecraft code, can be used for older versions of [Fabric](https://github.com/FabricMC/fabric) and [Quilt](https://quiltmc.org/) mods.
 * `mapper-nukkit` - NBT mapper for [Nukkit](https://github.com/CloudburstMC/Nukkit) nbt objects.
 * `mapper-packetevents` - NBT mapper for [PacketEvents](https://github.com/retrooper/packetevents) nbt objects.
 * `mapper-vianbt` - NBT mapper for [ViaNBT](https://github.com/ViaVersion/ViaNBT) objects, can be used along with [ViaVersion](https://github.com/ViaVersion) projects.

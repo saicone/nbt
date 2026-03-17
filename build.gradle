@@ -21,7 +21,7 @@ allprojects {
 
     dependencies {
         compileOnly 'com.google.code.gson:gson:2.13.2'
-        compileOnly 'org.jetbrains:annotations:26.0.2'
+        compileOnly 'org.jetbrains:annotations:26.1.0'
     }
 
     compileJava {
@@ -62,7 +62,7 @@ subprojects {
 }
 
 dependencies {
-    testImplementation(platform('org.junit:junit-bom:5.14.0'))
+    testImplementation(platform('org.junit:junit-bom:5.14.3'))
     testImplementation('org.junit.jupiter:junit-jupiter')
     testRuntimeOnly('org.junit.platform:junit-platform-launcher')
     testImplementation('com.google.code.gson:gson:2.13.2')
