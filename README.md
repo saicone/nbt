@@ -78,14 +78,13 @@ This library contains the following artifacts:
 * `nbt-mapper-bungeecord` - NBT mapper for [Bungeecord](https://github.com/SpigotMC/BungeeCord) nbt objects.
 * `nbt-mapper-cloudburst` - NBT mapper for [CloudburstMC nbt](https://github.com/CloudburstMC/NBT) objects.
 * `nbt-mapper-jo-nbt` - NBT mapper for [jo-nbt](https://github.com/llbit/jo-nbt) objects, can be used for older versions of [Bungeecord](https://github.com/SpigotMC/BungeeCord).
-* `nbt-mapper-minecraft117` - NBT mapper for Minecraft +1.17 with Mojang mappings, can be used for mods and [PaperMC](https://papermc.io/).
-* `nbt-mapper-minecraft1215` - NBT mapper for Minecraft +1.21.5 with Mojang mappings, can be used for mods and [PaperMC](https://papermc.io/).
+* `nbt-mapper-minecraft` - NBT mapper for Minecraft code, can be used for mods and [PaperMC](https://papermc.io/).
 * `nbt-mapper-minecraft-yarn` - NBT mapper for [yarn](https://github.com/FabricMC/yarn) mapped Minecraft code, can be used for older versions of [Fabric](https://github.com/FabricMC/fabric) and [Quilt](https://quiltmc.org/) mods.
 * `nbt-mapper-nukkit` - NBT mapper for [Nukkit](https://github.com/CloudburstMC/Nukkit) nbt objects.
 * `nbt-mapper-packetevents` - NBT mapper for [PacketEvents](https://github.com/retrooper/packetevents) nbt objects.
 * `nbt-mapper-vianbt` - NBT mapper for [ViaNBT](https://github.com/ViaVersion/ViaNBT) objects, can be used along with [ViaVersion](https://github.com/ViaVersion) projects.
 * `nbt-module-datafixeruppoer` - Compatibility with Mojang [DataFixerUpper](https://github.com/Mojang/DataFixerUpper) to create a DynamicOps for any NBT implementation.
-* `nbt-module-types` - Compatibility with [types](https://github.com/saicone/types) library to create a TypeParser for any NBT implementation.
+* `nbt-module-types` - Compatibility with [types](https://github.com/saicone/types) library.
 
 <details>
   <summary>build.gradle</summary>
