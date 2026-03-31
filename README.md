@@ -85,6 +85,7 @@ This library contains the following artifacts:
 * `mapper-packetevents` - NBT mapper for [PacketEvents](https://github.com/retrooper/packetevents) nbt objects.
 * `mapper-vianbt` - NBT mapper for [ViaNBT](https://github.com/ViaVersion/ViaNBT) objects, can be used along with [ViaVersion](https://github.com/ViaVersion) projects.
 * `module-datafixeruppoer` - Compatibility with Mojang [DataFixerUpper](https://github.com/Mojang/DataFixerUpper) to create a DynamicOps for any NBT implementation.
+* `module-types` - Compatibility with [types](https://github.com/saicone/types) library to create a TypeParser for any NBT implementation.
 
 <details>
   <summary>build.gradle</summary>

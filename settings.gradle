@@ -22,5 +22,6 @@ include(
 )
 
 include(
-        ':module:module-datafixerupper'
+        ':module:module-datafixerupper',
+        ':module:module-types'
 )

@@ -86,6 +86,16 @@ public class TagOps<T> implements DynamicOps<T> {
         this.emptyList = mapper.build(TagType.LIST, List.of());
     }
 
+    /**
+     * Get the {@link TagMapper} associated with this {@link TagOps}.
+     *
+     * @return the tag mapper.
+     */
+    @NotNull
+    public TagMapper<T> getMapper() {
+        return mapper;
+    }
+
     @Override
     public T empty() {
         return empty;
