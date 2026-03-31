@@ -1,0 +1,13 @@
+repositories {
+    maven { url = uri('https://libraries.minecraft.net') }
+}
+
+dependencies {
+    compileOnly 'com.mojang:datafixerupper:9.0.19'
+    compileOnly 'it.unimi.dsi:fastutil:8.5.18'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}

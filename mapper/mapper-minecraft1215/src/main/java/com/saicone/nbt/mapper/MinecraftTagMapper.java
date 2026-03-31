@@ -13,6 +13,7 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongArrayTag;
 import net.minecraft.nbt.LongTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.StringTag;
@@ -39,6 +40,8 @@ public class MinecraftTagMapper implements TagMapper<Tag> {
      * {@link MinecraftTagMapper} public instance.
      */
     public static final MinecraftTagMapper INSTANCE = new MinecraftTagMapper();
+
+    private static final NbtOps DYNAMIC_OPS = NbtOps.INSTANCE;
 
     private static final MethodHandle LIST_VALUE;
     private static final MethodHandle COMPOUND_VALUE;
