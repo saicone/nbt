@@ -2,11 +2,15 @@ plugins {
     id 'me.champeau.jmh' version '0.7.3'
 }
 
+description = 'NBT'
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
+
+    apply from: "$rootDir/gradle/publish-config.gradle"
 
     idea {
         module {
@@ -46,10 +50,13 @@ allprojects {
     publishing {
         publications {
             maven(MavenPublication) {
-                groupId = project.group
-                artifactId = project.name
-                version = project.version
                 from components.java
+
+                pom {
+                    afterEvaluate {
+                        description = 'Multiplatform Named Binary Tag library with customizable abstraction'
+                    }
+                }
             }
         }
     }
@@ -58,6 +65,20 @@ allprojects {
 subprojects {
     dependencies {
         implementation rootProject
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifactId = 'nbt-' + project.name
+
+                pom {
+                    afterEvaluate {
+                        description = "Module \"${project.name}\" of NBT"
+                    }
+                }
+            }
+        }
     }
 }
 

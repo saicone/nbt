@@ -1,3 +1,5 @@
+description = 'NBT Mapper Adventure'
+
 dependencies {
     compileOnly 'net.kyori:adventure-nbt:4.26.1'
 }

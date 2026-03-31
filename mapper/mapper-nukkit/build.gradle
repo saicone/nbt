@@ -1,3 +1,5 @@
+description = 'NBT Mapper Nukkit'
+
 repositories {
     maven { url = uri('https://repo.opencollab.dev/main/') }
 }

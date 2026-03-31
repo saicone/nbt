@@ -1,3 +1,5 @@
+description = 'NBT Mapper ViaNBT'
+
 repositories {
     maven { url = uri('https://repo.viaversion.com') }
 }

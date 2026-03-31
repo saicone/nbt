@@ -2,6 +2,8 @@ plugins {
     id 'fabric-loom' version '1.15-SNAPSHOT'
 }
 
+description = 'NBT Mapper Minecraft Yarn'
+
 loom {
     splitEnvironmentSourceSets()
 }

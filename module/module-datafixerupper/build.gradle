@@ -1,3 +1,5 @@
+description = 'NBT Module DataFixerUpper'
+
 repositories {
     maven { url = uri('https://libraries.minecraft.net') }
 }
