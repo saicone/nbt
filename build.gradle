@@ -33,8 +33,7 @@ allprojects {
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        toolchain.languageVersion.set(JavaLanguageVersion.of(11))
         withSourcesJar()
         withJavadocJar()
     }
@@ -122,8 +121,13 @@ def javadocProjects= [
 
 tasks.register('allJavadoc', Javadoc) {
     group = 'documentation'
+
     source javadocProjects.collect { project(it).sourceSets.main.allJava }
     classpath = files(javadocProjects.collect { project(it).sourceSets.main.compileClasspath })
+    javadocTool.set(javaToolchains.javadocToolFor {
+        languageVersion.set(JavaLanguageVersion.of(25))
+    })
+
     options {
         links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
         links 'https://javadoc.io/doc/org.jetbrains/annotations/latest/'
@@ -150,5 +154,6 @@ tasks.register('allJavadoc', Javadoc) {
         // Types module
         links 'https://javadoc.saicone.com/types/'
     }
+
     destinationDir = file(project.layout.buildDirectory.dir('docs/all-javadoc'))
 }

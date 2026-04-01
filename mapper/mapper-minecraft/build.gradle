@@ -5,7 +5,20 @@ repositories {
     maven { url = uri('https://repo.codemc.io/repository/nms/') }
 }
 
+configurations {
+    compileOnlyWith
+    compileOnly.extendsFrom compileOnlyWith
+}
+
 dependencies {
-    compileOnly('org.spigotmc:spigot:26.1-R0.1-SNAPSHOT') { transitive = false }
+    compileOnlyWith('org.spigotmc:spigot:26.1-R0.1-SNAPSHOT') { transitive = false }
     compileOnly 'it.unimi.dsi:fastutil:8.5.18'
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
 }
