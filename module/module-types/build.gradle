@@ -4,3 +4,9 @@ dependencies {
     implementation 'com.saicone:types:1.4.3'
     implementation 'com.saicone:types-wrapper:1.4.3'
 }
+
+javadoc {
+    options {
+        links 'https://javadoc.saicone.com/types/'
+    }
+}

@@ -114,7 +114,10 @@ def javadocProjects= [
         ':mapper:mapper-minecraft-yarn',
         ':mapper:mapper-nukkit',
         ':mapper:mapper-packetevents',
-        ':mapper:mapper-vianbt'
+        ':mapper:mapper-vianbt',
+
+        ':module:module-datafixerupper',
+        ':module:module-types'
 ]
 
 tasks.register('allJavadoc', Javadoc) {
@@ -136,13 +139,16 @@ tasks.register('allJavadoc', Javadoc) {
         links 'https://javadoc.io/doc/se.llbit/jo-nbt/latest/'
 
         // Minecraft yarn mapper
-        links 'https://maven.fabricmc.net/docs/yarn-1.21.10+build.2/'
+        links 'https://maven.fabricmc.net/docs/yarn-1.21.11+build.4/'
 
         // PacketEvents mapper
         links 'https://javadocs.packetevents.com/'
 
         // ViaVersion mapper
         links 'https://jd.viaversion.com/'
+
+        // Types module
+        links 'https://javadoc.saicone.com/types/'
     }
     destinationDir = file(project.layout.buildDirectory.dir('docs/all-javadoc'))
 }
