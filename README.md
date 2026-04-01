@@ -91,7 +91,7 @@ This library contains the following artifacts:
 
 ```groovy
 dependencies {
-    implementation 'com.saicone:nbt:1.0.3'
+    implementation 'com.saicone:nbt:1.0.4'
 }
 ```
 
@@ -102,7 +102,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("com.saicone:nbt:1.0.3")
+    implementation("com.saicone:nbt:1.0.4")
 }
 ```
 
@@ -116,7 +116,7 @@ dependencies {
     <dependency>
         <groupId>com.saicone</groupId>
         <artifactId>nbt</artifactId>
-        <version>1.0.3</version>
+        <version>1.0.4</version>
         <scope>compile</scope>
     </dependency>
 </dependencies>

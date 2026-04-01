@@ -5,6 +5,10 @@ plugins {
 description = 'NBT'
 
 allprojects {
+    if (project.name == 'mapper' || project.name == 'module') {
+        return
+    }
+
     apply plugin: 'java'
     apply plugin: 'idea'
     apply plugin: 'java-library'
@@ -62,6 +66,10 @@ allprojects {
 }
 
 subprojects {
+    if (project.name == 'mapper' || project.name == 'module') {
+        return
+    }
+
     dependencies {
         implementation rootProject
     }
