@@ -193,13 +193,45 @@ public class TagWriter<T> extends Writer {
     }
 
     /**
-     * Write string tag value, any {@code "} will be replaced with {@code \"} to match SNBT compatibility.
+     * Write string tag value, any special character will be escaped to match SNBT compatibility.
      *
      * @param s the tag value to write.
      * @throws IOException if any I/O exception occurs.
      */
     public void writeStringTag(@NotNull String s) throws IOException {
-        write("\"" + s.replace("\"", "\\\"") + "\"");
+        final StringBuilder string = new StringBuilder(s.length());
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            // NOTE: escape for single quotation mark is not added here since the String is surrounded by double quotation mark
+            switch (c) {
+                case '\\':
+                    string.append("\\\\");
+                    break;
+                case '"' :
+                    string.append("\\\"");
+                    break;
+                case '\b':
+                    string.append("\\b");
+                    break;
+                case '\f':
+                    string.append("\\f");
+                    break;
+                case '\n':
+                    string.append("\\n");
+                    break;
+                case '\r':
+                    string.append("\\r");
+                    break;
+                case '\t':
+                    string.append("\\t");
+                    break;
+                default:
+                    string.append(c);
+                    break;
+            }
+        }
+
+        write("\"" + string + "\"");
     }
 
     /**
