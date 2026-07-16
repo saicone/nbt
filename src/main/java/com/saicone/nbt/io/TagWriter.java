@@ -68,11 +68,21 @@ public class TagWriter<T> extends Writer {
      * @return  true if the string is unquoted, false otherwise.
      */
     protected boolean isUnquoted(@NotNull String s) {
+        if (s.isEmpty()) {
+            return false;
+        }
+
+        char first = s.charAt(0);
+        if (Character.isDigit(first) || first == '-' || first == '.' || first == '+') {
+            return false;
+        }
+
         for (int i = 0; i < s.length(); i++) {
             if (!isUnquoted(s.charAt(i))) {
                 return false;
             }
         }
+
         return true;
     }
 
